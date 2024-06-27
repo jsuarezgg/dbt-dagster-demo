@@ -20,7 +20,7 @@ LEFT JOIN (
     SELECT
         MAX(ae_batch_id) AS last_ae_batch_id,
         MAX(batch_max_timestamp) AS last_batch_max_timestamp
-    FROM {{ source('gold_staging', 'stg_braze_snapshots_deltas_statistics') }} -- Source to avoid circuit-break
+    FROM {{ source('gold_staging', 'braze_snapshots_deltas_statistics') }} -- Source to avoid circuit-break
     WHERE snapshot_deltas_source = 'snp_deltas_braze_user_attributes'
     ) last_batch ON 1=1
 WHERE 1=1

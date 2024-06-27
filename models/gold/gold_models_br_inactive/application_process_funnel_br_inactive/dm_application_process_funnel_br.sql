@@ -96,7 +96,7 @@ product_assignation as (
 		   	 or orig_bnpn.application_id is not null then 1 else 0 end as originated,
 		   orig.term
 	from applications_backfill_step_2 abs
-	left join {{ source('gold', 'bl_application_product_br')}} blap
+	left join {{ ref('bl_application_product_br')}} blap
 	on abs.application_id = blap.application_id
 	left join {{ ref('f_originations_bnpl_br') }} orig
 	on abs.application_id = orig.application_id

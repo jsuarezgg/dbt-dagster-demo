@@ -30,7 +30,7 @@ WITH app_events AS (
 		app_sessions_in_calculation_month,
 		app_sessions_last_30_days,
 		LAG(client_category,7) OVER (PARTITION BY client_id ORDER BY calculation_date) AS prev_week_client_category
-	FROM {{ source('gold', 'dm_daily_customer_segmentation_co') }} cs
+	FROM {{ ref('dm_daily_customer_segmentation_co') }} cs
 	WHERE 1=1
 			AND calculation_date > '2022-09-01'
 ) 
