@@ -4,3 +4,4 @@ locations:
   code_source:
     module_name: dbt_dagster_demo.definitions
   location_name: dbt_dagster_demo
+
