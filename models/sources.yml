@@ -1785,7 +1785,3 @@ sources:
       - name: amplitude_addi_funnel_preapproval_survey
       - name: amplitude_addi_funnel_privacy_policy_v2_co_cell_phone_used
       - name: amplitude_addi_funnel_app_into_webview
-  - name: gold_staging
-    tables:
-      - name: stg_braze_snapshots_deltas_statistics
-        identifier: braze_snapshots_deltas_statistics
