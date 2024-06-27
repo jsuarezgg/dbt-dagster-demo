@@ -1,0 +1,6 @@
+locations:
+- build:
+    directory: ./dagster_config
+  code_source:
+    module_name: dagster_config.definitions
+  location_name: dagster_config
