@@ -1574,7 +1574,6 @@ sources:
       - name: dm_daily_loan_status_br
       - name: dm_originations
       - name: bl_application_product_co
-      - name: bl_application_product_br
       - name: agg_addi_management_manual_metrics_inputs
       - name: agg_addi_management_manual_metrics_inputs_txn
       - name: bl_originations_payment_date_co
