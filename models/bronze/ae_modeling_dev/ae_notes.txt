@@ -1,0 +1,16 @@
+UNICO IMPLEMENTATION - CDAPN notes
+
+    llegaron:
+    idvthirdpartyapproved_br.sql
+    idvthirdpartycollected_br.sql
+    idvthirdpartyrequested_br.sql
+    idvthirdpartystarted_br.sql
+
+    missing: in lucid
+    idvthirdpartymanualverificationrequired_br.sql
+    idvthirdpartyrejected_br.sql
+    idvthirdpartyskipped_br.sql
+    idvthirdpartyphotorejected_br.sql
+
+    missing : in repo not in lucid
+    idvthirdpartyfailed_br.sql

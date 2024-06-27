@@ -1,0 +1,93 @@
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: "lake_modeling"
+version: "1.0.0"
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "addi"
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+packages-install-path: "dbt_packages"
+
+target-path: "target" # directory which will store compiled SQL files
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+# To run dbt locally ; these value are used only when without airflow (as in those cases the default is always the ones
+# set as default when defining 'dbt_task_vars')
+vars:
+  start_date: "2022-01-01" #placeholder
+  end_date: "2022-01-30" #placeholder
+  execution_date: "2022-01-01" #placeholder
+  incremental_slack_time_in_hours : "10" #placeholder
+  incremental_slack_time_in_days : "3" #placeholder
+
+# In this example config, we tell dbt to build all models in the example/ directory
+# as tables. These settings can be overridden in the individual model files
+# using the `{{ config(...) }}` macro.
+models:
+  lake_modeling:
+    # Config indicated by + and applies to all files under models/client/
+    bronze:
+      +schema: bronze
+      +on_schema_change: append_new_columns
+      +materialized: table
+      +file_format: delta
+      +persist_docs:
+        relation: false
+        columns: false
+    silver:
+      +schema: silver
+      +on_schema_change: append_new_columns
+      +materialized: table
+      +file_format: delta
+      +persist_docs:
+        relation: false
+        columns: false
+    gold_staging:
+      +schema: gold_staging
+      +on_schema_change: append_new_columns
+      +materialized: table
+      +file_format: delta
+      +persist_docs:
+        relation: false
+        columns: false
+    gold:
+      +schema: gold
+      +on_schema_change: append_new_columns
+      +materialized: table
+      +file_format: delta
+      +persist_docs:
+        relation: false
+        columns: false
+    gold_staging:
+      +schema: gold_staging
+      +on_schema_change: append_new_columns
+      +materialized: table
+      +file_format: delta
+      +persist_docs:
+        relation: false
+        columns: false
+
+snapshots:
+  lake_modeling:
+    +strategy: timestamp
+    +target_schema: bronze
+
+# https://github.com/dbt-labs/spark-utils/tree/0.3.0/#compatibility
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ["spark_utils", "dbt_utils"]

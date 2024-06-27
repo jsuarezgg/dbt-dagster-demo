@@ -1,0 +1,102 @@
+addi:
+  outputs:
+    default:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+    
+    databricks:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+    
+    databricks_cluster:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_CLUSTER') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_CLUSTER') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_CLUSTER') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_sql_special:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_SQL_SPECIAL') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_SQL_SPECIAL') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_SQL_SPECIAL') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_classic_warehouse:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_CLASSIC_WAREHOUSE') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_CLASSIC_WAREHOUSE') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_CLASSIC_WAREHOUSE') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_ae_communications_hf_warehouse:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_AE_COMMUNICATIONS_HF_WAREHOUSE') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_AE_COMMUNICATIONS_HF_WAREHOUSE') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_AE_COMMUNICATIONS_HF_WAREHOUSE') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_ae_application_process_funnel_nrt_warehouse:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_AE_APPLICATION_PROCESS_FUNNEL_NRT_WAREHOUSE') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_AE_APPLICATION_PROCESS_FUNNEL_NRT_WAREHOUSE') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_AE_APPLICATION_PROCESS_FUNNEL_NRT_WAREHOUSE') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_ae_risk_master_table_co_warehouse:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_AE_RISK_MASTER_TABLE_CO_WAREHOUSE') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_AE_RISK_MASTER_TABLE_CO_WAREHOUSE') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_AE_RISK_MASTER_TABLE_CO_WAREHOUSE') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+    databricks_test_unity_catalog_warehouse:
+      type: databricks
+      catalog: addi_prod
+      schema: dbt
+      host: "{{ env_var('DATABRICKS_HOST_AE_TEST_UNITY_CATALOG_WAREHOUSE') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH_AE_TEST_UNITY_CATALOG_WAREHOUSE') }}"
+      token: "{{ env_var('DATABRICKS_PERSONAL_ACCESS_TOKEN_AE_TEST_UNITY_CATALOG_WAREHOUSE') }}"
+      connect_retries: 5
+      connect_timeout: 60
+      threads: 48
+
+  target: databricks

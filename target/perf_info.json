@@ -1,0 +1,74 @@
+{
+    "path_count": 1910,
+    "parsed_path_count": 1910,
+    "static_analysis_path_count": 1496,
+    "static_analysis_parsed_path_count": 1,
+    "is_partial_parse_enabled": false,
+    "is_static_analysis_enabled": true,
+    "read_files_elapsed": 2.4408895850010595,
+    "load_macros_elapsed": 8.254838754000957,
+    "parse_project_elapsed": 25.463284553999983,
+    "patch_sources_elapsed": 0.1738954160009598,
+    "process_manifest_elapsed": 0.18458362499950454,
+    "load_all_elapsed": 37.0645032249995,
+    "projects": [
+        {
+            "project_name": "lake_modeling",
+            "elapsed": 25.42859634499837,
+            "parsers": [
+                {
+                    "parser": "model",
+                    "elapsed": 17.195377132999056,
+                    "parsed_path_count": 1496
+                },
+                {
+                    "parser": "snapshot",
+                    "elapsed": 0.21696425099980843,
+                    "parsed_path_count": 3
+                },
+                {
+                    "parser": "test",
+                    "elapsed": 8.00973558700025,
+                    "parsed_path_count": 6
+                }
+            ],
+            "parsed_path_count": 1505
+        },
+        {
+            "project_name": "dbt_databricks",
+            "elapsed": 0.005567459000303643,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "dbt_spark",
+            "elapsed": 0.006591875002413872,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "dbt",
+            "elapsed": 0.005964874999335734,
+            "parsers": [
+                {
+                    "parser": "doc",
+                    "elapsed": 0.00021254199964459985,
+                    "parsed_path_count": 1
+                }
+            ],
+            "parsed_path_count": 1
+        },
+        {
+            "project_name": "dbt_utils",
+            "elapsed": 0.0056457919999957085,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "spark_utils",
+            "elapsed": 0.00612058399747184,
+            "parsers": [],
+            "parsed_path_count": 0
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{{
+    config(
+        materialized='table',
+        full_refresh = false,
+        post_hook=[
+            'ANALYZE TABLE {{ this }} COMPUTE STATISTICS',
+        ]
+    )
+}}
+
+--raw.ally_management_ally_sub_categories_co
+SELECT
+    -- MANDATORY FIELDS
+    -- MAPPED FIELDS - DIRECT ATTRIBUTES
+    slug AS sub_category_slug,
+    name AS sub_category_name,
+    category_slug,
+    _dag_execution_url AS dag_execution_url,
+    -- CUSTOM ATTRIBUTES
+    NOW() AS ingested_at,
+    to_timestamp('{{ var("execution_date") }}') AS updated_at
+-- DBT SOURCE REFERENCE
+FROM {{ source('raw', 'ally_management_ally_sub_categories_co') }}

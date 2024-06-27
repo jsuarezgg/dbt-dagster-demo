@@ -1,0 +1,70 @@
+
+-- SILVER SQL
+
+-- SECTION 1 -> CALLING BRONCE ref's
+WITH
+telesignphoneidobtained_co AS ( 
+    SELECT *
+    FROM bronze.telesignphoneidobtained_co
+    WHERE ocurred_on_date BETWEEN (to_date('2022-01-01'- INTERVAL "10" HOUR)) AND to_date('2022-01-30') AND
+        ocurred_on BETWEEN (to_timestamp('2022-01-01'- INTERVAL "10" HOUR)) AND to_timestamp('2022-01-30') 
+)
+,telesignphoneidobtained_v2_co AS ( 
+    SELECT *
+    FROM bronze.telesignphoneidobtained_v2_co
+    WHERE ocurred_on_date BETWEEN (to_date('2022-01-01'- INTERVAL "10" HOUR)) AND to_date('2022-01-30') AND
+        ocurred_on BETWEEN (to_timestamp('2022-01-01'- INTERVAL "10" HOUR)) AND to_timestamp('2022-01-30') 
+)
+
+
+--SECTION 1B -> UNION BRONCE ref's
+, union_bronze AS (
+    SELECT 
+        application_id,client_id,custom_kyc_event_version,metadata_context_traceId,ocurred_on,telesignPhoneId_blocklisting_blockCode,telesignPhoneId_blocklisting_blockDescription,telesignPhoneId_blocklisting_blocked,telesignPhoneId_carrier_name,telesignPhoneId_location_city,telesignPhoneId_location_country_iso2,telesignPhoneId_location_country_iso3,telesignPhoneId_location_country_name,telesignPhoneId_numbering_cleansing_call_cleansedCode,telesignPhoneId_numbering_cleansing_call_countryCode,telesignPhoneId_numbering_cleansing_call_maxLength,telesignPhoneId_numbering_cleansing_call_minLength,telesignPhoneId_numbering_cleansing_call_phoneNumber,telesignPhoneId_numbering_cleansing_sms_cleansedCode,telesignPhoneId_numbering_cleansing_sms_countryCode,telesignPhoneId_numbering_cleansing_sms_maxLength,telesignPhoneId_numbering_cleansing_sms_minLength,telesignPhoneId_numbering_cleansing_sms_phoneNumber,telesignPhoneId_numbering_original_completePhoneNumber,telesignPhoneId_numbering_original_countryCode,telesignPhoneId_numbering_original_phoneNumber,telesignPhoneId_phoneType_code,telesignPhoneId_phoneType_description,telesignPhoneId_portingHistory_numberOfPortings,telesignPhoneId_portingHistory_portingDateTime,telesignPhoneId_portingHistory_status_code,telesignPhoneId_portingHistory_status_description,telesignPhoneId_referenceId,telesignPhoneId_simSwap_riskIndicator,telesignPhoneId_simSwap_status_code,telesignPhoneId_simSwap_status_description,telesignPhoneId_simSwap_swapDateTime,telesignPhoneId_status_code,telesignPhoneId_status_description,telesignPhoneId_status_updatedOn,
+    event_name,
+    event_id
+    FROM telesignphoneidobtained_co
+    UNION ALL
+    SELECT 
+        application_id,client_id,custom_kyc_event_version,metadata_context_traceId,ocurred_on,telesignPhoneId_blocklisting_blockCode,telesignPhoneId_blocklisting_blockDescription,telesignPhoneId_blocklisting_blocked,telesignPhoneId_carrier_name,telesignPhoneId_location_city,telesignPhoneId_location_country_iso2,telesignPhoneId_location_country_iso3,telesignPhoneId_location_country_name,telesignPhoneId_numbering_cleansing_call_cleansedCode,telesignPhoneId_numbering_cleansing_call_countryCode,telesignPhoneId_numbering_cleansing_call_maxLength,telesignPhoneId_numbering_cleansing_call_minLength,telesignPhoneId_numbering_cleansing_call_phoneNumber,telesignPhoneId_numbering_cleansing_sms_cleansedCode,telesignPhoneId_numbering_cleansing_sms_countryCode,telesignPhoneId_numbering_cleansing_sms_maxLength,telesignPhoneId_numbering_cleansing_sms_minLength,telesignPhoneId_numbering_cleansing_sms_phoneNumber,telesignPhoneId_numbering_original_completePhoneNumber,telesignPhoneId_numbering_original_countryCode,telesignPhoneId_numbering_original_phoneNumber,telesignPhoneId_phoneType_code,telesignPhoneId_phoneType_description,telesignPhoneId_portingHistory_numberOfPortings,telesignPhoneId_portingHistory_portingDateTime,telesignPhoneId_portingHistory_status_code,telesignPhoneId_portingHistory_status_description,telesignPhoneId_referenceId,telesignPhoneId_simSwap_riskIndicator,telesignPhoneId_simSwap_status_code,telesignPhoneId_simSwap_status_description,telesignPhoneId_simSwap_swapDateTime,telesignPhoneId_status_code,telesignPhoneId_status_description,telesignPhoneId_status_updatedOn,
+    event_name,
+    event_id
+    FROM telesignphoneidobtained_v2_co
+    
+) 
+-- SECTION 2 -> UNION of prepared CTE's in Section 1
+, union_all_events AS (
+    SELECT 
+    application_id,client_id,custom_kyc_event_version,metadata_context_traceId,ocurred_on,telesignPhoneId_blocklisting_blockCode,telesignPhoneId_blocklisting_blockDescription,telesignPhoneId_blocklisting_blocked,telesignPhoneId_carrier_name,telesignPhoneId_location_city,telesignPhoneId_location_country_iso2,telesignPhoneId_location_country_iso3,telesignPhoneId_location_country_name,telesignPhoneId_numbering_cleansing_call_cleansedCode,telesignPhoneId_numbering_cleansing_call_countryCode,telesignPhoneId_numbering_cleansing_call_maxLength,telesignPhoneId_numbering_cleansing_call_minLength,telesignPhoneId_numbering_cleansing_call_phoneNumber,telesignPhoneId_numbering_cleansing_sms_cleansedCode,telesignPhoneId_numbering_cleansing_sms_countryCode,telesignPhoneId_numbering_cleansing_sms_maxLength,telesignPhoneId_numbering_cleansing_sms_minLength,telesignPhoneId_numbering_cleansing_sms_phoneNumber,telesignPhoneId_numbering_original_completePhoneNumber,telesignPhoneId_numbering_original_countryCode,telesignPhoneId_numbering_original_phoneNumber,telesignPhoneId_phoneType_code,telesignPhoneId_phoneType_description,telesignPhoneId_portingHistory_numberOfPortings,telesignPhoneId_portingHistory_portingDateTime,telesignPhoneId_portingHistory_status_code,telesignPhoneId_portingHistory_status_description,telesignPhoneId_referenceId,telesignPhoneId_simSwap_riskIndicator,telesignPhoneId_simSwap_status_code,telesignPhoneId_simSwap_status_description,telesignPhoneId_simSwap_swapDateTime,telesignPhoneId_status_code,telesignPhoneId_status_description,telesignPhoneId_status_updatedOn,
+    event_name,
+    event_id
+    FROM union_bronze 
+    
+)   
+
+
+
+, final AS (
+    SELECT 
+        *,
+        date(ocurred_on ) as ocurred_on_date,
+        to_timestamp('2022-01-01') updated_at
+    FROM union_all_events 
+)
+
+select * from final;
+
+/* DEBUGGING SECTION
+is_incremental: True
+this: silver.f_kyc_telesign_phoneid_v1v2_co_logs
+country: co
+silver_table_name: f_kyc_telesign_phoneid_v1v2_co_logs
+table_pk_fields: ['event_id']
+table_pk_amount: 1
+fields_direct: ['application_id', 'client_id', 'custom_kyc_event_version', 'event_id', 'metadata_context_traceId', 'ocurred_on', 'telesignPhoneId_blocklisting_blockCode', 'telesignPhoneId_blocklisting_blockDescription', 'telesignPhoneId_blocklisting_blocked', 'telesignPhoneId_carrier_name', 'telesignPhoneId_location_city', 'telesignPhoneId_location_country_iso2', 'telesignPhoneId_location_country_iso3', 'telesignPhoneId_location_country_name', 'telesignPhoneId_numbering_cleansing_call_cleansedCode', 'telesignPhoneId_numbering_cleansing_call_countryCode', 'telesignPhoneId_numbering_cleansing_call_maxLength', 'telesignPhoneId_numbering_cleansing_call_minLength', 'telesignPhoneId_numbering_cleansing_call_phoneNumber', 'telesignPhoneId_numbering_cleansing_sms_cleansedCode', 'telesignPhoneId_numbering_cleansing_sms_countryCode', 'telesignPhoneId_numbering_cleansing_sms_maxLength', 'telesignPhoneId_numbering_cleansing_sms_minLength', 'telesignPhoneId_numbering_cleansing_sms_phoneNumber', 'telesignPhoneId_numbering_original_completePhoneNumber', 'telesignPhoneId_numbering_original_countryCode', 'telesignPhoneId_numbering_original_phoneNumber', 'telesignPhoneId_phoneType_code', 'telesignPhoneId_phoneType_description', 'telesignPhoneId_portingHistory_numberOfPortings', 'telesignPhoneId_portingHistory_portingDateTime', 'telesignPhoneId_portingHistory_status_code', 'telesignPhoneId_portingHistory_status_description', 'telesignPhoneId_referenceId', 'telesignPhoneId_simSwap_riskIndicator', 'telesignPhoneId_simSwap_status_code', 'telesignPhoneId_simSwap_status_description', 'telesignPhoneId_simSwap_swapDateTime', 'telesignPhoneId_status_code', 'telesignPhoneId_status_description', 'telesignPhoneId_status_updatedOn']
+mandatory_fields: ['event_name', 'event_id']
+events_dict: {'telesignphoneidobtained': {'direct_attributes': ['event_id', 'application_id', 'client_id', 'telesignPhoneId_blocklisting_blockCode', 'telesignPhoneId_blocklisting_blockDescription', 'telesignPhoneId_blocklisting_blocked', 'telesignPhoneId_carrier_name', 'telesignPhoneId_location_city', 'telesignPhoneId_location_country_iso2', 'telesignPhoneId_location_country_iso3', 'telesignPhoneId_location_country_name', 'telesignPhoneId_numbering_cleansing_call_cleansedCode', 'telesignPhoneId_numbering_cleansing_call_countryCode', 'telesignPhoneId_numbering_cleansing_call_maxLength', 'telesignPhoneId_numbering_cleansing_call_minLength', 'telesignPhoneId_numbering_cleansing_call_phoneNumber', 'telesignPhoneId_numbering_cleansing_sms_cleansedCode', 'telesignPhoneId_numbering_cleansing_sms_countryCode', 'telesignPhoneId_numbering_cleansing_sms_maxLength', 'telesignPhoneId_numbering_cleansing_sms_minLength', 'telesignPhoneId_numbering_cleansing_sms_phoneNumber', 'telesignPhoneId_numbering_original_completePhoneNumber', 'telesignPhoneId_numbering_original_countryCode', 'telesignPhoneId_numbering_original_phoneNumber', 'telesignPhoneId_phoneType_code', 'telesignPhoneId_phoneType_description', 'telesignPhoneId_portingHistory_numberOfPortings', 'telesignPhoneId_portingHistory_portingDateTime', 'telesignPhoneId_portingHistory_status_code', 'telesignPhoneId_portingHistory_status_description', 'telesignPhoneId_referenceId', 'telesignPhoneId_simSwap_riskIndicator', 'telesignPhoneId_simSwap_status_code', 'telesignPhoneId_simSwap_status_description', 'telesignPhoneId_simSwap_swapDateTime', 'telesignPhoneId_status_code', 'telesignPhoneId_status_description', 'telesignPhoneId_status_updatedOn', 'metadata_context_traceId', 'custom_kyc_event_version', 'ocurred_on'], 'custom_attributes': {}}, 'telesignphoneidobtained_v2': {'direct_attributes': ['event_id', 'application_id', 'client_id', 'telesignPhoneId_blocklisting_blockCode', 'telesignPhoneId_blocklisting_blockDescription', 'telesignPhoneId_blocklisting_blocked', 'telesignPhoneId_carrier_name', 'telesignPhoneId_location_city', 'telesignPhoneId_location_country_iso2', 'telesignPhoneId_location_country_iso3', 'telesignPhoneId_location_country_name', 'telesignPhoneId_numbering_cleansing_call_cleansedCode', 'telesignPhoneId_numbering_cleansing_call_countryCode', 'telesignPhoneId_numbering_cleansing_call_maxLength', 'telesignPhoneId_numbering_cleansing_call_minLength', 'telesignPhoneId_numbering_cleansing_call_phoneNumber', 'telesignPhoneId_numbering_cleansing_sms_cleansedCode', 'telesignPhoneId_numbering_cleansing_sms_countryCode', 'telesignPhoneId_numbering_cleansing_sms_maxLength', 'telesignPhoneId_numbering_cleansing_sms_minLength', 'telesignPhoneId_numbering_cleansing_sms_phoneNumber', 'telesignPhoneId_numbering_original_completePhoneNumber', 'telesignPhoneId_numbering_original_countryCode', 'telesignPhoneId_numbering_original_phoneNumber', 'telesignPhoneId_phoneType_code', 'telesignPhoneId_phoneType_description', 'telesignPhoneId_portingHistory_numberOfPortings', 'telesignPhoneId_portingHistory_portingDateTime', 'telesignPhoneId_portingHistory_status_code', 'telesignPhoneId_portingHistory_status_description', 'telesignPhoneId_referenceId', 'telesignPhoneId_simSwap_riskIndicator', 'telesignPhoneId_simSwap_status_code', 'telesignPhoneId_simSwap_status_description', 'telesignPhoneId_simSwap_swapDateTime', 'telesignPhoneId_status_code', 'telesignPhoneId_status_description', 'telesignPhoneId_status_updatedOn', 'metadata_context_traceId', 'custom_kyc_event_version', 'ocurred_on'], 'custom_attributes': {}}}
+events_keys: ['telesignphoneidobtained', 'telesignphoneidobtained_v2']
+flag_group_feature_active: False
+version: silver_sql_builder_alternative
+*/

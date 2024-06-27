@@ -1,0 +1,38 @@
+
+
+
+--raw_modeling.checkoutloginacceptedbr_br
+SELECT
+    -- MANDATORY FIELDS
+    json_tmp.eventType AS event_name_original,
+    reverse(split(json_tmp.eventType,"\\."))[0] AS event_name,
+    json_tmp.eventId AS event_id,
+    CAST(ocurred_on AS TIMESTAMP) AS ocurred_on,
+    dt AS ocurred_on_date,
+    NOW() AS ingested_at,
+    to_timestamp('2022-01-01') AS updated_at,
+    -- MAPPED FIELDS
+    json_tmp.client.birth.date AS birth_date,
+    json_tmp.client.name.firstLast AS first_last_name,
+    json_tmp.client.name.first AS first_name,
+    json_tmp.client.name.full AS full_name,
+    json_tmp.client.nationalIdentification.number AS id_number,
+    json_tmp.client.nationalIdentification.type AS id_type,
+    json_tmp.client.id AS client_id,
+    json_tmp.application.id AS application_id,
+    json_tmp.ally.slug AS ally_slug,
+    json_tmp.application.journey.currentStage.name AS journey_stage_name,
+    json_tmp.originationEventType AS event_type,
+    json_tmp.application.journey.name AS journey_name,
+    json_tmp.application.product AS product,
+    json_tmp.client.type AS client_type,
+    COALESCE(json_tmp.application.channel,json_tmp.metadata.context.channel) AS channel
+    -- CUSTOM ATTRIBUTES
+     -- Fill with your custom attributes
+    -- CAST(ocurred_on AS TIMESTAMP) AS checkoutloginacceptedbr_br_at -- To store it as a standalone column, when needed
+-- DBT SOURCE REFERENCE
+FROM raw_modeling.checkoutloginacceptedbr_br
+-- DBT INCREMENTAL SENTENCE
+
+    WHERE dt BETWEEN (to_date("2022-01-01"- INTERVAL "10" HOUR)) AND to_date("2022-01-30")
+    AND CAST(ocurred_on AS TIMESTAMP) BETWEEN (to_timestamp("2022-01-01"- INTERVAL "10" HOUR)) AND to_timestamp("2022-01-30")

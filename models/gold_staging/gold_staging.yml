@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: aux_funnel_application_journey_grouping
+    description: "Auxiliary Gold Staging table to remap application journey values (with slight modifications for funnel) into journey homologs"
+    columns:
+      - name: country_code
+        description: "Country code"
+      - name: synthetic_journey_name
+        description: "Application journey value with slight modifications to add certain custom cases"
+      - name: journey_homolog
+        description: "Journey Homolog value"
+      - name: is_synthetic
+        description: "Boolean flag - whether this journey_name_for_funnel is an original events value (false) or a custom one (true)"
+  - name: aux_funnel_application_journey_stage_grouping_view
+    description: "Auxiliary Gold Staging table to remap application journey name values into journey stage homologs"
+    columns:
+      - name: country_code
+        description: "Country code"
+      - name: journey_stage_name
+        description: "Application journey stage name value "
+      - name: is_synthetic
+        description: "Boolean flag - whether this journey_stage_name is an original events value (false) or a custom one (true)"
+      - name: journey_stage_homolog
+        description: "Journey Stage Homolog value"
