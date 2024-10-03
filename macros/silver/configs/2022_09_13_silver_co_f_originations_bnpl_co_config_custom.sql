@@ -1,7 +1,7 @@
 {% macro return_config_co_f_originations_bnpl_co_custom() %}
 {#-target_country=co;target_schema=silver;target_table_name=f_originations_bnpl_co-#}
 {%- set configuration_dict = {
-    "config_parser_execution_date": "2024-05-07 09:49 TZ-0300",
+    "config_parser_execution_date": "2024-06-24 17:28 TZ-0300",
     "is_group_feature_active": true,
     "relevant_properties": {
         "schema_country": "co",
@@ -27,6 +27,7 @@
                 "effective_annual_rate",
                 "lbl",
                 "guarantee_rate",
+                "guarantee_amount",
                 "guarantee_provider",
                 "ocurred_on"
             ],
@@ -47,6 +48,7 @@
                 "effective_annual_rate",
                 "lbl",
                 "guarantee_rate",
+                "guarantee_amount",
                 "ocurred_on",
                 "custom_is_santander_originated"
             ],
@@ -68,6 +70,7 @@
                 "effective_annual_rate",
                 "lbl",
                 "guarantee_rate",
+                "guarantee_amount",
                 "ocurred_on",
                 "custom_is_santander_originated"
             ],
@@ -100,6 +103,7 @@
                 "term",
                 "effective_annual_rate",
                 "guarantee_rate",
+                "guarantee_amount",
                 "lbl",
                 "ocurred_on"
             ],
@@ -132,6 +136,7 @@
             "client_id",
             "custom_is_santander_originated",
             "effective_annual_rate",
+            "guarantee_amount",
             "guarantee_provider",
             "guarantee_rate",
             "lbl",

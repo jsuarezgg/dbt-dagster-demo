@@ -43,7 +43,7 @@ WITH
     WHERE {{ sorting_key }}_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_days')}}" DAY)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         {{ sorting_key }} BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_days')}}" DAY)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
         {%- endif -%}
-    {%- endif -%} {# When in prod: {{ bronze.{{event_key | lower}} }} )#} 
+    {%- endif -%} {# When in prod: addi_prod.{{ bronze.{{event_key | lower}} }} )#}
 )
 {% endfor %}
 
@@ -68,10 +68,10 @@ WITH
     UNION ALL
     SELECT 
     {{ silver_fields_builder(fields_direct, fields_direct, mandatory_fields, sorting_key, flag_group_feature_active, True) }}
-    FROM silver.{{silver_table_name}}  
+    FROM addi_prod.silver.{{silver_table_name}}
     WHERE 
     {% for table_pk_field in table_pk_fields -%}
-        silver.{{silver_table_name}}.{{ table_pk_field }} IN (SELECT DISTINCT {{ table_pk_field }} FROM union_bronze) {% if not loop.last  %} AND {% endif %}     
+        addi_prod.silver.{{silver_table_name}}.{{ table_pk_field }} IN (SELECT DISTINCT {{ table_pk_field }} FROM union_bronze) {% if not loop.last  %} AND {% endif %}
     {% endfor -%}
     {%- endif %}
     {%- endif %}
@@ -136,6 +136,6 @@ mandatory_fields: {{ mandatory_fields }}
 events_dict: {{ events_dict }}
 events_keys: {{ events_keys }}
 flag_group_feature_active: {{ flag_group_feature_active }}
-version: silver_sql_builder_alternative
+macro_versions: silver_sql_builder_alternative & silver_fields_builder
 */
 {% endmacro %}
