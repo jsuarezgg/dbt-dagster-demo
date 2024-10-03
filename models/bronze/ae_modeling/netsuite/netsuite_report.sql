@@ -50,6 +50,7 @@ raw_extraction AS (
         project,
         subsidiaria AS legal_entity,
         CASE
+            WHEN subsidiaria = 'ADELANTE SOLUCIONES FINANCIERAS S.A.S.' THEN rate.price
             WHEN subsidiaria = 'Adelante Soluções Financeiras Ltda' THEN  {{ netsuite_fx_rate_br }}
             WHEN subsidiaria = 'Adelante Soluciones Financieras SAS' THEN rate.price
             WHEN subsidiaria = 'Adelante Securitizadora S.A.' THEN {{ netsuite_fx_rate_br }}

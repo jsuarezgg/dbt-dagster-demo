@@ -17,7 +17,7 @@ WITH co_addishop_paying_slugs AS (
         ally_state,
         ocurred_on AS start_date,
         COALESCE(LAG(ocurred_on) OVER (PARTITION BY ally_slug ORDER BY ocurred_on DESC),to_timestamp('2050-01-01 00:00:00')) AS end_date
-    FROM {{ ref('d_ally_slugs_co_logs') }}
+    FROM {{ source('silver_live', 'd_ally_slugs_co_logs') }}
     WHERE 1=1
         AND event_name IN ('AllyUpdated', 'AllyCreated')
         AND ally_slug IN (SELECT distinct ally_slug FROM co_addishop_paying_slugs)
@@ -138,7 +138,7 @@ LEFT JOIN shop_origination_order soo
 LEFT JOIN silver.d_fx_rate f
   ON f.is_active IS TRUE
   AND f.country_code = 'CO'
-LEFT JOIN {{ ref('d_ally_slugs_co') }} das
+LEFT JOIN {{ source('silver_live', 'd_ally_slugs_co') }} das
   ON das.ally_slug = ab.ally_slug
 )
 SELECT

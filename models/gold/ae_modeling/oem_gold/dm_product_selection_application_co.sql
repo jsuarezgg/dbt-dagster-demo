@@ -15,7 +15,7 @@ SELECT
   c.ally_cluster,
   a.client_id,
   a.client_type,
-  a.ocurred_on_date,
+  CAST(a.last_event_ocurred_on_processed AS DATE) AS ocurred_on_date,
   a.last_event_ocurred_on_processed,
   CASE WHEN dap.application_id IS NULL THEN FALSE ELSE TRUE END AS product_selected_flag,
   b.declination_reason product_selection_declination_reason,
@@ -27,11 +27,11 @@ SELECT
   is_addishop_referral,
   is_addishop_referral_paid,
   auto_selection
-FROM {{ ref('f_product_selection_events_co') }} AS a
+FROM {{ source('silver_live', 'f_product_selection_events_co') }} AS a
 LEFT JOIN  {{ ref('dm_applications') }}  dap
   ON a.application_id = dap.application_id
   AND dap.country_code = 'CO'
-LEFT JOIN  {{ ref('f_product_selection_declination_data_co') }} b
+LEFT JOIN  {{ source('silver_live', 'f_product_selection_declination_data_co') }} b
   ON a.application_id = b.application_id
 LEFT JOIN {{ ref('bl_ally_brand_ally_slug_status') }} AS c
   ON c.country_code = 'CO'

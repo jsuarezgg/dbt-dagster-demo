@@ -75,9 +75,9 @@ with ally_vertical as (
           and orig.application_id is not null
       ) as n_physical_originated_loans
     from
-      {{ ref('f_applications_co') }} apps
+      {{ source('silver_live', 'f_applications_co') }} apps
     left join
-      {{ ref('f_originations_bnpl_co') }} orig
+      {{ source('silver_live', 'f_originations_bnpl_co') }} orig
     on
       apps.application_id = orig.application_id
     left join
@@ -106,9 +106,9 @@ with ally_vertical as (
           application_date asc
       ) as application_first
     from
-      {{ ref('f_applications_co') }} apps
+      {{ source('silver_live', 'f_applications_co') }} apps
     left join
-      {{ ref('f_originations_bnpl_co') }} orig
+      {{ source('silver_live', 'f_originations_bnpl_co') }} orig
     on
       apps.application_id = orig.application_id
     left join
@@ -138,9 +138,9 @@ with ally_vertical as (
           application_date asc
       ) as origination_first
     from
-      {{ ref('f_applications_co') }} apps
+      {{ source('silver_live', 'f_applications_co') }} apps
     inner join
-      {{ ref('f_originations_bnpl_co') }} orig
+      {{ source('silver_live', 'f_originations_bnpl_co') }} orig
     on
       apps.application_id = orig.application_id
     left join
@@ -221,7 +221,7 @@ with ally_vertical as (
       client_id,
       collect_list(income_estimatedIncome) as estimated_income
     from
-      {{ ref('f_kyc_bureau_income_estimator_co') }}
+      {{ source('silver_live', 'f_kyc_bureau_income_estimator_co') }}
     group by
       1
   ),
@@ -281,7 +281,7 @@ with ally_vertical as (
                 when max(personId_ageRange) = "Mas 75" then 78.0 
            end as prospect_age_avg
            --,row_number() over(PARTITION by client_id order by ocurred_on_date DESC) AS rn
-        FROM {{ ref('f_kyc_bureau_personal_info_co') }}
+        FROM {{ source('silver_live', 'f_kyc_bureau_personal_info_co') }}
         GROUP BY client_id
         --QUALIFY rn = 1
   ),

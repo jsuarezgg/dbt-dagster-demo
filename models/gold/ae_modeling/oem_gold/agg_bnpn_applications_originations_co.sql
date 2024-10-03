@@ -73,7 +73,7 @@ SELECT
   CASE WHEN c.transaction_id IS NOT NULL THEN TRUE ELSE FALSE END AS cancelled,
   c.custom_transaction_cancellation_status,
   c.transaction_cancellation_reason,
-  c.ocurred_on_date AS cancelled_date,
+  CAST(c.last_event_ocurred_on_processed AS DATE) AS cancelled_date,
   NOW() AS ingested_at,
   to_timestamp('{{ var("execution_date") }}') AS updated_at
 FROM  {{ ref('dm_applications') }} a
@@ -87,9 +87,9 @@ LEFT JOIN (SELECT
             FROM {{ ref('risk_master_table_co') }}
             WHERE product = 'BNPN_CO') rmt
   ON rmt.application_id = a.application_id
-LEFT JOIN {{ ref('f_transaction_cancellations_co') }} c
+LEFT JOIN {{ source('silver_live', 'f_transaction_cancellations_co') }} c
     ON c.transaction_id = a.application_id
-LEFT JOIN {{ ref('f_applications_pse_payment_co') }} p
+LEFT JOIN {{ source('silver_live', 'f_applications_pse_payment_co') }} p
     ON a.application_id = p.application_id
 LEFT JOIN silver.d_fx_rate fr 
   ON fr.country_code = a.country_code 

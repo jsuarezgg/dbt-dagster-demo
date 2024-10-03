@@ -29,7 +29,7 @@ with apps as (
         when (orig.application_id is not null OR refi_orig.application_id IS NOT NULL) then true
         else false 
         end as loan_originated
-      ,lp.term
+      ,COALESCE(lp.term, orig.term) AS term
       ,apps.ally_slug
       ,al.ally_name
       ,als.store_slug as store_name
@@ -192,13 +192,13 @@ with apps as (
       ,cast(lp.interest_rate as double) as interest_rate
       ,from_utc_timestamp(ls.first_payment_date, 'America/Bogota') as first_payment_date
       ,case 
-        when apps.channel like '%PAY%LINK%' then 'PAY_LINK'
-        when apps.channel like '%E%COMMERCE%' then 'E_COMMERCE'
-        when apps.channel like '%PRE%APPROVAL%' then 'PREAPPROVAL'
-        when apps.channel like '%IN%STORE%' then 'IN_STORE'
-        when apps.channel like '%REFINANCE%' then 'REFINANCE'
-        when apps.channel like '%ADDI_MARKETPLACE%' then 'ADDI_MARKETPLACE'
-        WHEN apps.channel IS NULL THEN NULL
+        when channel_bl.application_channel like '%PAY%LINK%' then 'PAY_LINK'
+        when channel_bl.application_channel like '%E%COMMERCE%' then 'E_COMMERCE'
+        when channel_bl.application_channel like '%PRE%APPROVAL%' then 'PREAPPROVAL'
+        when channel_bl.application_channel like '%IN%STORE%' then 'IN_STORE'
+        when channel_bl.application_channel like '%REFINANCE%' then 'REFINANCE'
+        when channel_bl.application_channel like '%ADDI_MARKETPLACE%' then 'ADDI_MARKETPLACE'
+        WHEN channel_bl.application_channel IS NULL THEN NULL
         ELSE '_PENDING_MANUAL_MAPPING_'
       end as application_channel
       ,bl.processed_product as product
@@ -250,33 +250,34 @@ with apps as (
       ,ls.unpaid_collection_fees
       ,ls.total_collection_fees_paid
       ,ls.total_collection_fees_condoned
-    from {{ ref('f_applications_co') }} apps
+    from {{ source('silver_live', 'f_applications_co') }} apps
     LEFT JOIN {{ ref('bl_application_id_to_application_process_id_co') }} AS funnel_bl ON funnel_bl.application_id = apps.application_id
     LEFT JOIN {{ ref('dm_application_process_funnel_co') }}            AS funnel_dm ON funnel_dm.application_process_id = funnel_bl.application_process_id
-    left join {{ ref('f_originations_bnpl_co') }} orig on apps.application_id = orig.application_id
-    left join {{ ref('f_refinance_loans_co') }} AS refi_orig ON apps.application_id = refi_orig.application_id
-    left join {{ ref('f_underwriting_fraud_stage_co') }} udw on apps.application_id = udw.application_id
+    left join {{ source('silver_live', 'f_originations_bnpl_co') }} orig on apps.application_id = orig.application_id
+    left join {{ source('silver_live', 'f_refinance_loans_co') }} AS refi_orig ON apps.application_id = refi_orig.application_id
+    left join {{ source('silver_live', 'f_underwriting_fraud_stage_co') }} udw on apps.application_id = udw.application_id
     left join {{ ref('d_syc_clients_co') }} sc on apps.client_id = sc.client_id
     left join {{ ref('d_ally_management_allies_co') }} al on apps.ally_slug = al.ally_slug
     left join {{ ref('d_ally_management_stores_allies_co') }} als on apps.ally_slug = als.ally_slug and apps.store_slug = als.store_slug
     left join {{ ref('d_ally_management_cities_regions_co')}} ar on als.store_city_code = ar.city_code 
     left join (select a.loan_id, 
                       row_number() over(partition by a.client_id order by a.origination_date) as loan_number
-               from {{ ref('f_originations_bnpl_co') }} a
+               from {{ source('silver_live', 'f_originations_bnpl_co') }} a
                where a.loan_id is not null) client_loan_number on orig.loan_id = client_loan_number.loan_id
     left join {{ ref('bl_application_product_co') }} bl on apps.application_id = bl.application_id
     left join {{ ref('dm_loan_status_co') }} ls on COALESCE(orig.loan_id,refi_orig.loan_id) = ls.loan_id
     left join {{ source('gold', 'rmt_loan_fully_paid_date_co') }} fpd on COALESCE(orig.loan_id,refi_orig.loan_id) = fpd.loan_id and COALESCE(orig.client_id,refi_orig.client_id) = fpd.client_id
-    left join {{ ref('f_loan_proposals_co') }} lp on COALESCE(orig.loan_id,refi_orig.loan_id) = lp.loan_proposal_id
-    left join {{ ref('f_idv_stage_co') }} idv on apps.application_id = idv.application_id
-    left join {{ ref('f_identity_photos_third_party_co') }} idv_3 on apps.application_id = idv_3.application_id
-    left join {{ ref('f_origination_events_co') }} orig_ev on apps.application_id = orig_ev.application_id
+    left join {{ source('silver_live', 'f_loan_proposals_co') }} lp on COALESCE(orig.loan_id,refi_orig.loan_id) = lp.loan_proposal_id
+    left join {{ source('silver_live', 'f_idv_stage_co') }} idv on apps.application_id = idv.application_id
+    left join {{ source('silver_live', 'f_identity_photos_third_party_co') }} idv_3 on apps.application_id = idv_3.application_id
+    left join {{ source('silver_live', 'f_origination_events_co') }} orig_ev on apps.application_id = orig_ev.application_id
     left join {{ ref('rmt_application_journey_stages_co') }} app_js on apps.application_id = app_js.application_id
     left join {{ ref('dm_addishop_paying_allies_co') }} la on orig.ally_slug = la.ally_slug
         and orig.origination_date >= to_timestamp(la.start_date)
         and orig.origination_date <= to_timestamp(la.end_date)
-    left join {{ ref('f_applications_addi_v2_co')}} addiv2 on apps.application_id = addiv2.application_id
-    left join {{ ref('f_marketplace_transaction_attributable_co') }} mta on apps.application_id = mta.application_id
+    left join {{ source('silver_live', 'f_applications_addi_v2_co')}} addiv2 on apps.application_id = addiv2.application_id
+    left join {{ source('silver_live', 'f_marketplace_transaction_attributable_co') }} mta on apps.application_id = mta.application_id
+    left join {{ ref('bl_application_channel') }} channel_bl on apps.application_id = channel_bl.application_id
 )
 
 select *

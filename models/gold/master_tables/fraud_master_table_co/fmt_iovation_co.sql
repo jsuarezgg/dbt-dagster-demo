@@ -14,7 +14,7 @@ WITH raw_rejection_rules AS (
 		NAMED_STRUCT('type', iovation_rule_result_type, 'score', iovation_rule_result_score, 'reason', iovation_rule_result_reason) AS iovation_rule_results_rules,
 		CASE WHEN iovation_rule_result_score = -100 THEN 1 END AS flag_rejection_rule,
         DENSE_RANK () OVER(PARTITION BY application_id ORDER BY ocurred_on DESC) AS priority
-	FROM {{ ref('f_kyc_iovation_v1v2_result_rules_co_logs') }}
+	FROM {{ source('silver_live', 'f_kyc_iovation_v1v2_result_rules_co_logs') }}
 )
 ,
 rule_result_rules_by_app AS (
@@ -58,5 +58,5 @@ SELECT
 	rrr.rejection_rule_results_rules_int AS io_rejection_rule_results_rules_int,
 	rrr.rejection_rule_results_score AS io_rejection_rule_results_score,
 	rrr.rejection_rule_results_rules_matched AS io_rejection_rule_results_rulesMatched
-FROM {{ ref('f_kyc_iovation_v1v2_co') }} io
+FROM {{ source('silver_live', 'f_kyc_iovation_v1v2_co') }} io
 LEFT JOIN rule_result_rules_by_app rrr		ON io.application_id = rrr.application_id

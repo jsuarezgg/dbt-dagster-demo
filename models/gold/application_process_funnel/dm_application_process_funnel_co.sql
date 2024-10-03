@@ -41,7 +41,7 @@
 WITH
 f_origination_events_co_logs_filtered AS (
     SELECT *
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     WHERE application_id IS NOT NULL
 )
 ,
@@ -180,8 +180,11 @@ SELECT
     COALESCE(stg_2.ally_clusters_string,'KA') AS ally_cluster, --WITH DEFAULT
     stg_2.ally_brands_string AS brand,
     stg_2.ally_verticals_string AS vertical,
+    stg_2.account_kam_names_string AS account_kam_name,
     stg_2.synthetic_product_category,
     stg_2.synthetic_product_subcategory,
+    stg_2.is_addishop_referral_with_default AS is_addishop_referral,
+    stg_2.is_addishop_referral_paid_with_default AS is_addishop_referral_paid,
     stg_2.debug_num_unique_applications,
     stg_2.debug_sum_has_reached_approval,
     -- CUSTOM STEPS IN & OUTS

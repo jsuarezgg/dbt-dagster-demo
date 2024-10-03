@@ -141,7 +141,7 @@ SELECT
     sa.lead_gen_fee_amount,
     sa.origination_is_addishop_referral,
     sa.origination_is_addishop_referral_paid
-FROM {{ ref('f_marketplace_shopping_intents_co') }} si
+FROM {{ source('silver_live', 'f_marketplace_shopping_intents_co') }} si
 LEFT JOIN {{ ref('bl_ally_brand_ally_slug_status') }} abs
     ON abs.country_code = 'CO'
     AND si.ally_slug = abs.ally_slug

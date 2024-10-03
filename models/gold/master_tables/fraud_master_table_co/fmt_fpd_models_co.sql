@@ -28,4 +28,4 @@ SELECT
     COALESCE(dul.model, udw.fraud_model_version) AS fraud_model_version,
     COALESCE(dul.score, udw.fraud_model_score) AS fraud_model_score
 FROM FraudPoliciesBooleanDecisionUnit dul
-LEFT JOIN {{ ref('f_underwriting_fraud_stage_co') }} udw   ON udw.application_id = dul.application_id AND dul.rn = 1
+LEFT JOIN {{ source('silver_live', 'f_underwriting_fraud_stage_co') }} udw   ON udw.application_id = dul.application_id AND dul.rn = 1

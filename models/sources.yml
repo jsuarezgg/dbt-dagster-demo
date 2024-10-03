@@ -4,8 +4,10 @@ sources:
   - name: raw
     tables:
       - name: ally_management_ally_activation_co
+      - name: ally_management_ally_invoices_co
       - name: ally_management_ally_config_br
       - name: ally_management_ally_addishop_configurations_co
+      - name: ally_management_ally_addi_shop_rewards_configurations_co
       - name: ally_management_ally_config_co
       - name: ally_management_ally_promotions_co
       - name: ally_management_cities_co
@@ -28,6 +30,7 @@ sources:
       - name: ally_management_store_users_co
       - name: ally_management_transactions_co
       - name: ally_management_ally_seller_co
+      - name: amplitude_funnel_events_fix
       - name: channels_orders_co
       - name: client_acceptances_loan_sell_detail_co
       - name: client_acceptances_loan_sell_process_co
@@ -115,6 +118,7 @@ sources:
       - name: experian_report_rep_202309_co
       - name: experian_report_rep_202310_co
       - name: employees_sheet
+      - name: marketplace_client_clusters_co
       - name: notion_page
       - name: risk_service_decision_unit_logs_co
       - name: risk_service_decision_unit_logs_br
@@ -123,6 +127,7 @@ sources:
       - name: risk_service_decision_unit_segments_co
       - name: risk_service_decision_unit_segments_br
       - name: risk_service_decision_unit_management_co
+      - name: syc_client_migration_segments_co
       - name: syc_client_status_co
       - name: syc_client_status_br
       - name: syc_clients_co
@@ -241,6 +246,41 @@ sources:
       - name: snc_positive_balance_report_co
       - name: ally_management_ally_addi_marketplace_configurations_co
       - name: identity_management_identifications_co
+      - name: communications_marketing_preference_log_co
+      - name: originations_identity_photos_third_party_calls_co
+      - name: braze_users_behaviors_subscription_globalstatechange
+      - name: braze_users_behaviors_subscriptiongroup_statechange
+      - name: braze_users_behaviors_uninstall
+      - name: braze_users_campaigns_conversion
+      - name: braze_users_campaigns_enrollincontrol
+      - name: braze_users_canvas_conversion
+      - name: braze_users_canvas_entry
+      - name: braze_users_canvas_exit_matchedaudience
+      - name: braze_users_canvas_exit_performedevent
+      - name: braze_users_messages_contentcard_send
+      - name: braze_users_messages_email_abort
+      - name: braze_users_messages_email_bounce
+      - name: braze_users_messages_email_click
+      - name: braze_users_messages_email_delivery
+      - name: braze_users_messages_email_markasspam
+      - name: braze_users_messages_email_open
+      - name: braze_users_messages_email_send
+      - name: braze_users_messages_email_softbounce
+      - name: braze_users_messages_email_unsubscribe
+      - name: braze_users_messages_pushnotification_abort
+      - name: braze_users_messages_pushnotification_bounce
+      - name: braze_users_messages_pushnotification_open
+      - name: braze_users_messages_pushnotification_send
+      - name: braze_users_messages_sms_abort
+      - name: braze_users_messages_sms_delivery
+      - name: braze_users_messages_sms_deliveryfailure
+      - name: braze_users_messages_sms_rejection
+      - name: braze_users_messages_sms_send
+      - name: braze_users_messages_whatsapp_delivery
+      - name: braze_users_messages_whatsapp_read
+      - name: braze_users_messages_whatsapp_send
+      - name: api_addi_clients_payments_bancolombia_collect
+      - name: api_google_recaptcha_site_verify
   - name: raw_modeling
     tables:
       - name: acceptloanmaxattemptsreachedbr_br
@@ -290,6 +330,7 @@ sources:
       - name: basicidverificationfailedco_co
       - name: bioinfodidnotmatchbr_br
       - name: bioinfodidnotmatchco_co
+      - name: bureaudataobtained_v2_co
       - name: carddownpaymentfailedbr_br
       - name: carddownpaymentgeneratedbr_br
       - name: carddownpaymentpaidbr_br
@@ -760,6 +801,7 @@ sources:
       - name: allystorecreated_co
       - name: clientcontractgenerated_co
       - name: contractgenerated_co
+      - name: sanctionlistmatchdetected_co
   - name: raw_modeling_live
     tables:
       - name: acceptloanmaxattemptsreachedbr_br
@@ -1278,6 +1320,12 @@ sources:
       - name: allystorecreated_co
       - name: clientcontractgenerated_co
       - name: contractgenerated_co
+      - name: sanctionlistmatchdetected_co
+  - name: bronze_live
+    tables:
+      - name: loanreturnedfromtrust_co
+      - name: loansoldtotrust_co
+      - name: loantransfernotificationsent_co
   - name: bronze
     tables:
       - name: schema_stats_calculator_results
@@ -1464,6 +1512,7 @@ sources:
       - name: engineering_metrics_metrics
       - name: engineering_metrics_services
       - name: engineering_metrics_squads
+      - name: engineering_metrics_metrics_pr
       - name: identity_management_users_co
       - name: identity_management_users_br
       - name: sendgrid_messages
@@ -1556,13 +1605,16 @@ sources:
       - name: fmt_kyc_all_info_br
       - name: fmt_kyc_all_info_co
       - name: expedition_city_homologation_co
+      - name: ae_snapshot_behaviour_test
   - name: gold
     tables:
+      - name: risk_master_table_co
       - name: risk_master_table_br
       - name: dm_application_process_funnel_br
       - name: dm_application_process_funnel_co
       - name: dm_amplitude
       - name: dm_loan_status_co
+      - name: fraud_master_table_co
       - name: dm_addi_okr_metrics
       - name: dm_support_today_master_calendar
       - name: expedition_city_homologation_co
@@ -1572,13 +1624,22 @@ sources:
       - name: fmt_clean_address_apps_co
       - name: dm_daily_loan_status_co
       - name: dm_daily_loan_status_br
+      - name: dm_daily_customer_segmentation_co
       - name: dm_originations
       - name: bl_application_product_co
+      - name: bl_application_product_br
       - name: agg_addi_management_manual_metrics_inputs
       - name: agg_addi_management_manual_metrics_inputs_txn
       - name: bl_originations_payment_date_co
       - name: dm_support_daily_calendar_series
       - name: rmt_loan_fully_paid_date_co
+      - name: snp_braze_cdi_user_attributes
+      - name: snp_braze_cdi_user_deletion
+      - name: agg_braze_cdi_user_attributes
+      - name: agg_braze_cdi_user_deletion
+      - name: agg_braze_proxy_user_status_co
+      - name: snp_braze_purchase_events
+      - name: agg_manual_inputs_actuals_finance_co
   - name: tru
     tables:
       - name: app_home_specific_store_touched
@@ -1591,7 +1652,14 @@ sources:
       - name: app_pay_button_tapped
   - name: silver
     tables:
+      - name: f_amplitude_addi_funnel_project
+      - name: f_originations_bnpl_br
+      - name: f_originations_bnpn_br
+      - name: f_applications_br
+      - name: f_origination_events_co_logs
       - name: f_origination_events_br_logs
+      - name: f_originations_bnpl_co
+      - name: f_applications_co
       - name: f_marketplace_transaction_attributable_co
       - name: f_marketplace_transaction_attributable_br
       - name: f_fincore_loans_co
@@ -1606,6 +1674,7 @@ sources:
       - name: ds_expected_collection_fees_results
       - name: grande_loss_forecast
       - name: grande_true_up_loss_forecast
+      - name: d_pii_cases_co
   - name: risk
     tables:
       - name: seg1_cut_br_v2
@@ -1617,6 +1686,8 @@ sources:
       - name: jfr_pre_ECM_table
       - name: prospect_loss_forecast
       - name: client_loss_forecast
+      - name: prospect_loss_forecast_origination
+      - name: client_loss_forecast_origination
       - name: financia_loss_forecast_final_legacy_exl
       - name: pap_exclusion_loan_sale
       - name: reason_to_filter_loans
@@ -1627,6 +1698,7 @@ sources:
       - name: dm_grande_lbl_eligibility_criteria
       - name: braze_baseline_features
   - name: raw_http_outbound_requests
+    database: hive_metastore
     tables:
       - name: httprequestsent_br
       - name: httprequestsent_co
@@ -1634,12 +1706,164 @@ sources:
       - name: httpresponsereceived_co
   - name: silver_live
     tables:
-      - name: f_applications_co
       - name: f_origination_all_events_co_logs
+      - name: d_ally_cms_integration_monitoring_co
+      - name: d_ally_cms_integration_monitoring_co_logs
+      - name: d_ally_slugs_co
+      - name: d_ally_slugs_co_logs
+      - name: d_ally_stores_co
+      - name: d_ally_stores_co_logs
+      - name: d_client_geolocation_co
+      - name: d_client_geolocation_co_logs
+      - name: d_clients_personal_information_updated_co
+      - name: d_clients_personal_information_updated_co_logs
+      - name: d_prospect_personal_data_co
+      - name: d_prospect_personal_data_co_logs
+      - name: d_restricted_entities_co
+      - name: d_restricted_entities_co_logs
+      - name: f_allies_product_policies_co
+      - name: f_allies_product_policies_co_logs
+      - name: f_ally_management_activation_events_co
+      - name: f_ally_management_activation_events_co_logs
+      - name: f_ally_pop_material_shipping_orders_co
+      - name: f_ally_pop_material_shipping_orders_co_logs
+      - name: f_ally_pop_material_shipping_orders_items_co
+      - name: f_ally_pop_material_shipping_orders_items_co_logs
+      - name: f_ally_store_health_checks_co
+      - name: f_ally_store_health_checks_co_logs
+      - name: f_applications_addi_v2_co
+      - name: f_applications_addi_v2_co_logs
+      - name: f_applications_co
+      - name: f_applications_co_logs
+      - name: f_applications_declination_data_co
+      - name: f_applications_declination_data_co_logs
+      - name: f_applications_discounts_co
+      - name: f_applications_discounts_co_logs
+      - name: f_applications_loans_to_refinance_co
+      - name: f_applications_loans_to_refinance_co_logs
+      - name: f_applications_marketplace_allies_product_policies_co
+      - name: f_applications_marketplace_allies_product_policies_co_logs
+      - name: f_applications_marketplace_suborders_co
+      - name: f_applications_marketplace_suborders_co_logs
+      - name: f_applications_marketplace_suborders_items_co
+      - name: f_applications_marketplace_suborders_items_co_logs
+      - name: f_applications_next_one_product_selection_co
+      - name: f_applications_next_one_product_selection_co_logs
+      - name: f_applications_order_details_co
+      - name: f_applications_order_details_co_logs
+      - name: f_applications_order_details_items_v2_co
+      - name: f_applications_order_details_items_v2_co_logs
+      - name: f_applications_order_details_v2_co
+      - name: f_applications_order_details_v2_co_logs
+      - name: f_applications_previous_applications_reference_co
+      - name: f_applications_previous_applications_reference_co_logs
+      - name: f_applications_pse_payment_co
+      - name: f_applications_pse_payment_co_logs
+      - name: f_approval_loans_to_refinance_co
+      - name: f_approval_loans_to_refinance_co_logs
+      - name: f_client_exclusions_co_logs
+      - name: f_client_loan_condonations_co
+      - name: f_client_loan_condonations_co_logs
+      - name: f_client_payment_promises_co
+      - name: f_client_payment_promises_co_logs
+      - name: f_client_survey_nps_sent_co_logs
+      - name: f_device_information_stage_co
+      - name: f_device_information_stage_co_logs
+      - name: f_fincore_clients_co
+      - name: f_fincore_clients_co_logs
+      - name: f_fincore_loans_co
+      - name: f_fincore_loans_co_logs
+      - name: f_fincore_payments_co
+      - name: f_fincore_payments_co_logs
+      - name: f_fincore_payments_co_v2
+      - name: f_fincore_payments_co_v2_logs
+      - name: f_identity_photos_third_party_co
+      - name: f_identity_photos_third_party_co_logs
+      - name: f_identity_photos_third_party_truora_events_co
+      - name: f_identity_photos_third_party_truora_events_co_logs
+      - name: f_idv_stage_co
+      - name: f_idv_stage_co_logs
+      - name: f_kyc_bureau_contact_info_addresses_co_logs
+      - name: f_kyc_bureau_contact_info_cellphones_co_logs
+      - name: f_kyc_bureau_contact_info_co
+      - name: f_kyc_bureau_contact_info_co_logs
+      - name: f_kyc_bureau_contact_info_mails_co_logs
+      - name: f_kyc_bureau_contact_info_phones_co_logs
+      - name: f_kyc_bureau_credit_aggregated_variables_periods_co_logs
+      - name: f_kyc_bureau_credit_history_bank_accounts_co_logs
+      - name: f_kyc_bureau_credit_history_co
+      - name: f_kyc_bureau_credit_history_co_logs
+      - name: f_kyc_bureau_credit_history_footprints_co_logs
+      - name: f_kyc_bureau_credit_history_tradelines_co_logs
+      - name: f_kyc_bureau_income_estimator_co
+      - name: f_kyc_bureau_income_estimator_co_logs
+      - name: f_kyc_bureau_income_validator_co
+      - name: f_kyc_bureau_income_validator_co_logs
+      - name: f_kyc_bureau_income_validator_contributions_co_logs
+      - name: f_kyc_bureau_personal_info_co
+      - name: f_kyc_bureau_personal_info_co_logs
+      - name: f_kyc_emailage_co
+      - name: f_kyc_emailage_co_logs
+      - name: f_kyc_emailage_social_media_co_logs
+      - name: f_kyc_iovation_v1v2_co
+      - name: f_kyc_iovation_v1v2_co_logs
+      - name: f_kyc_iovation_v1v2_result_rules_co_logs
+      - name: f_kyc_neuroid_v2_co
+      - name: f_kyc_neuroid_v2_co_logs
+      - name: f_kyc_seon_fraud_co
+      - name: f_kyc_seon_fraud_co_logs
+      - name: f_kyc_telesign_phoneid_v1v2_co
+      - name: f_kyc_telesign_phoneid_v1v2_co_logs
+      - name: f_loan_acceptance_stage_co_logs
+      - name: f_loan_cancellations_v2_co
+      - name: f_loan_cancellations_v2_co_logs
+      - name: f_loan_ownership_co
+      - name: f_loan_ownership_co_logs
+      - name: f_loan_proposals_co
+      - name: f_loan_proposals_co_logs
+      - name: f_marketplace_shopping_intents_co
+      - name: f_marketplace_shopping_intents_co_logs
+      - name: f_marketplace_transaction_attributable_co
+      - name: f_marketplace_transaction_attributable_co_logs
+      - name: f_origination_events_co
       - name: f_origination_events_co_logs
+      - name: f_origination_installments_co
+      - name: f_origination_installments_co_logs
+      - name: f_origination_termination_events_co_logs
+      - name: f_originations_bnpl_co
+      - name: f_originations_bnpl_co_logs
+      - name: f_originations_bnpn_co
+      - name: f_originations_bnpn_co_logs
+      - name: f_pii_applications_co
+      - name: f_pii_applications_co_logs
+      - name: f_privacy_policy_stage_co_logs_logs
+      - name: f_product_selection_declination_data_co
+      - name: f_product_selection_declination_data_co_logs
+      - name: f_product_selection_events_co
+      - name: f_product_selection_events_co_logs
+      - name: f_refinance_condonations_co
+      - name: f_refinance_condonations_co_logs
+      - name: f_refinance_loans_co
+      - name: f_refinance_loans_co_logs
+      - name: f_sanction_list_co
+      - name: f_sanction_list_co_logs
+      - name: f_transaction_cancellations_co
+      - name: f_transaction_cancellations_co_logs
+      - name: f_transaction_marked_leadgen_attributable_co
+      - name: f_transaction_marked_leadgen_attributable_co_logs
+      - name: f_underwriting_fraud_stage_co
+      - name: f_underwriting_fraud_stage_co_logs
+      - name: f_wompi_transactions_co
+      - name: f_wompi_transactions_co_logs
   - name: raw_backend_events
     tables:
       - name: shop_discovery_event_usergeolocationregistered_co
+      - name: kyc_event_seonfraudobtained_co
+      - name: kyc_event_seonfraudfailed_co
+      - name: transaction_attribution_event_shoppingintentregistered_co
+      - name: transaction_attribution_event_transactionattributable_co
+      - name: http_event_httpresponsereceived_co
+      - name: http_event_httprequestsent_co
   - name: bronze_amplitude_fix
     tables:
       - name: amplitude_addi_funnel_additional_information_br
@@ -1788,4 +2012,16 @@ sources:
   - name: gold_staging
     tables:
       - name: stg_braze_snapshots_deltas_statistics
-        identifier: braze_snapshots_deltas_statistics
+      - name: stg_braze_cdi_deltas_statistics
+  - name: silver_servicing
+    tables:
+      - name: d_rne_client_phone_number_preferences
+      - name: d_rne_client_email_preferences
+  - name: servicing
+    tables:
+      - name: kordev_toggle_updates
+      - name: payment_report_silver
+      - name: loan_status_report_silver
+      - name: kordev_daily_report_daily_raw
+      - name: accounting_trust_report_silver
+      - name: trust_report_silver

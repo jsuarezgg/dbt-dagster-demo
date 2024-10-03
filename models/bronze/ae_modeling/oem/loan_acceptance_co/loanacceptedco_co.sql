@@ -65,6 +65,7 @@ SELECT
     json_tmp.creditCheck.totalDebtToServiceRatio as tdsr,
     json_tmp.loan.approvedAmount AS approved_amount,
     json_tmp.loan.guarantee.totalGuaranteeRate AS guarantee_rate,
+    json_tmp.loan.guarantee.totalGuarantee AS guarantee_amount,
     json_tmp.loan.guarantee.provider as guarantee_provider,
     json_tmp.loan.effectiveAnnualRate AS effective_annual_rate,
     json_tmp.loan.id AS loan_id,
@@ -83,6 +84,7 @@ SELECT
     -- CUSTOM ATTRIBUTES
       -- Fill with your custom attributes
     CAST(1 AS TINYINT) AS custom_loan_acceptance_passed,
+    json_tmp.loan.acceptance.otp AS otp_code,
     named_struct(
         'event_id', json_tmp.eventId,
         'event_type', json_tmp.originationEventType,

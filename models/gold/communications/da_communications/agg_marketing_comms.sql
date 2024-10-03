@@ -30,8 +30,8 @@ ELSE false END AS general_addi_flag,
 COUNT(distinct si.shopping_intent_id) AS shopping_intents,
 COUNT(distinct ta.application_id) AS attributable_loans,
 SUM(o.gmv) AS attributable_gmv
-FROM {{ ref('f_marketplace_shopping_intents_co') }} si
-LEFT JOIN {{ ref('f_marketplace_transaction_attributable_co') }} ta ON si.shopping_intent_id=ta.shopping_intent_id
+FROM {{ source('silver_live', 'f_marketplace_shopping_intents_co') }} si
+LEFT JOIN {{ source('silver_live', 'f_marketplace_transaction_attributable_co') }} ta ON si.shopping_intent_id=ta.shopping_intent_id
 LEFT JOIN {{ ref('dm_originations') }} o ON ta.application_id=o.application_id
 WHERE si.channel not in ('WEB','MOBILE_APP','APP_BANNER','PUSH_NOTIFICATION','') or (si.channel in ('MOBILE_APP') and upper(si.screen)='DEALS')
 GROUP BY 1,2

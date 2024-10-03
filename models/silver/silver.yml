@@ -4093,6 +4093,19 @@ models:
         description: "Country name"
       - name: deploy_id
         description: "ID of the deployment"
+  - name: f_engineering_metrics_metrics_pr
+    description: "CI and CD time metrics for PRs"
+    columns:
+      - name: date
+        description: "Date of the record"
+      - name: duration
+        description: "Duration"
+      - name: service
+        description: "Service that was deployed or builded"
+      - name: type
+        description: "Type of build"
+      - name: stack
+        description: "Type of service grouped"
   - name: f_engineering_metrics_services
     description: "Platform services and their owner"
     columns:
@@ -4964,6 +4977,8 @@ models:
         description: "Late fees"
       - name: total_payment
         description: "Total payment"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: created_at
         description: "Created at timestamp"
       - name: ingested_at
@@ -4993,6 +5008,8 @@ models:
         description: "DESCRIPTION_PLACEHOLDER"
       - name: total_payment_pa
         description: "DESCRIPTION_PLACEHOLDER"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -5055,6 +5072,8 @@ models:
         description: "Indicates if the client is transactional based"
       - name: preferences
         description: "Preferences of the client"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -5207,6 +5226,8 @@ models:
         description: "DESCRIPTION_PLACEHOLDER"
       - name: total_collection_fees_condoned
         description: "Total late fees condoned"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -5381,6 +5402,8 @@ models:
         description: "Approved amount limit for preapproval applications"
       - name: initial_addicupo
         description: "DESCRIPTION_PLACEHOLDER"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -9255,6 +9278,8 @@ models:
         description: "Total late fees paid"
       - name: total_collection_fees_condoned
         description: "Total late fees condoned"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: created_at
         description: "Created at timestamp"
       - name: ingested_at
@@ -9731,6 +9756,8 @@ models:
         description: "Boolean indicating if it was annulled"
       - name: annulment_reason
         description: "Reason for the annulment"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
   - name: f_syc_condonations_co
     description: "Direct Modeling - AE"
     columns:
@@ -12019,6 +12046,8 @@ models:
         description: "DESCRIPTION_PLACEHOLDER"
       - name: payment_ownership
         description: "Ownership of the payment"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -12372,11 +12401,35 @@ models:
         description: "lineone"
       - name: address_postalcode
         description: "postalcode"
+      - name: address_city
+        description: "City of the address of the ally"
+      - name: address_state
+        description: "State of the address of the ally"
       - name: ally_slug
         description: "Slug of the ally"
         tests:
           - unique
           - not_null
+      - name: legal_representative_name
+        description: "Name of the legal representative of the ally"
+      - name: legal_representative_id_type
+        description: "Id type of the legal representative of the ally"
+      - name: legal_representative_id_number
+        description: "Id number of the legal representative of the ally"
+      - name: financial_representative_name
+        description: "Name of the financial representative of the ally"
+      - name: financial_representative_id_type
+        description: "Id type of the financial representative of the ally"
+      - name: financial_representative_id_number
+        description: "Id number of the financial representative of the ally"
+      - name: first_final_beneficiaries_last_name
+        description: "Last name of the first one of the final beneficiaries of the ally"
+      - name: first_final_beneficiaries_first_name
+        description: "First name of the first one of the final beneficiaries of the ally"
+      - name: first_final_beneficiaries_id_type
+        description: "Id type of the first one of the final beneficiaries of the ally"
+      - name: first_final_beneficiaries_id_number
+        description: "Id number of the first one of the final beneficiaries of the ally"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -12945,6 +12998,8 @@ models:
         description: "Opportunity rango promedio compra"
       - name: opportunity_smbs_monthly_sales
         description: "Opportunity SMB's monthly sales"
+      - name: opportunity_ally_total_monthly_sales
+        description: "Opportunity ally total monthly sales"  
       - name: opportunity_ciuu
         description: "Opportunity CIUU"
       - name: opportunity_nit
@@ -12962,7 +13017,55 @@ models:
       - name: opportunity_airbyte_emitted_at
         description: "Airbyte - time at which the record was emitted and recorded by destination connector."
       - name: opportunity_ingested_from_s3_at
-        description: "Databricks - time at which the record was ingested from S3 into databricks lakehouse"
+        description: "Databricks - time at which the record was ingested from S3 into databricks lakehouse"     
+      - name: opportunity_field_sales_business
+        description: "Opportunity Field Sales Businesss"
+      - name: opportunity_descartado_details
+        description: "Opportunity Descartado Details"
+      - name: opportunity_consolidation_date
+        description: "Opportunity Date of Consolidation"
+      - name: opportunity_aml
+        description: "Opportunity AML"
+      - name: opportunity_aml_reason
+        description: "Opportunity AML Reason"
+      - name: opportunity_accept_credit_card
+        description: "Opportunity Accept Credit Card flag"
+      - name: opportunity_accept_sistecredito
+        description: "Opportunity Accept Sistecredito flag"
+      - name: opportunity_kyp_approval_details
+        description: "Opportunity KYP Approval Details"
+      - name: opportunity_kyp_approval_reason
+        description: "Opportunity KYP Approval Reason"
+      - name: opportunity_kyp_comments
+        description: "Opportunity KYP Comments"
+      - name: opportunity_kyp_decision
+        description: "Opportunity KYP Decision"
+      - name: opportunity_kyp_details
+        description: "Opportunity KYP Details"
+      - name: opportunity_not_accepted_product_type
+        description: "Opportunity Not Accepted Product Type"
+      - name: opportunity_rejection_details_2
+        description: "Opportunity Rejection Details 2"
+      - name: opportunity_rejection_details
+        description: "Opportunity Rejection Details"
+      - name: opportunity_replicas
+        description: "Opportunity Replicas"
+      - name: opportunity_risky_neighborhood
+        description: "Opportunity Risky Neighborhood"
+      - name: opportunity_risky_vertical
+        description: "Opportunity Risky Vertical"
+      - name: opportunity_ally_store_geolocation
+        description: "Opportunity Ally Store Geolocation"
+      - name: opportunity_ally_store_latitude
+        description: "Opportunity Ally Store Latitude"
+      - name: opportunity_ally_store_longitude
+        description: "Opportunity Ally Store Longitude"
+      - name: opportunity_first_origination_date
+        description: "Opportunity Date of First Origination"
+      - name: opportunity_type
+        description: "Opportunity Product Type"
+      - name: opportunity_average_order_value
+        description: "Opportunity Average Order Value"
   - name: f_salesforce_opportunities_history
     description: "Salesforce modeling - Native Data model object: Opportunity History - AE"
     columns:
@@ -14145,6 +14248,19 @@ models:
       - name: agent_Disconnected_perc
         description: "DESCRIPTION_PLACEHOLDER"
       - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: d_syc_client_migration_segments_co
+    description: "Direct Modeling for domain SYC - AE"
+    columns:
+      - name: client_id
+        description: "UUID of the client"
+      - name: lms_segment
+        description: "LMS migration segment of each client"
+      - name: lms_migrated_at
+        description: "Timestamp when the client was migrated"
+      - name: migrated_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
         description: "Environment variable (execution_date) from Airflow/dbt"
@@ -15509,6 +15625,8 @@ models:
         description: "Created at timestamp"
       - name: days_past_due_at_chargeoff
         description: "Days past due when the charge-off was effective"
+      - name: loan_tape_source
+        description: "Indicates if calculation comes from LMS or Kordev Loan Tape"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -15530,6 +15648,8 @@ models:
         description: "Data of each record"
       - name: preferences
         description: "Preferences of the client"
+      - name: device_tokens
+        description: "Tokens of the device" 
       - name: created_at
         description: "Created at timestamp"
       - name: ingested_at
@@ -18195,3 +18315,334 @@ models:
         description: "Runtime (datetime) when query was run"
       - name: updated_at
         description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: f_sanction_list_co
+    description: "AE modeling for OriginationsV2 - Every row is a client marked inside the sanction list for certain ally - Aggregate"
+    columns:
+      - name: custom_event_application_santion_list_id_number_pairing_id
+        description: "Unique id for the event made with surrogate_key based on ecent_id, application_id, list_id & id_number"
+      - name: ocurred_on
+        description: "Event ocurred_on Timestamp as date"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: client_type
+        description: "Type of the client"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: sanctioned_individuals_country
+        description: "Country code from the sanctioned individual"
+      - name: sanctioned_individuals_full_name
+        description: "Full name from the sanctioned individual"
+      - name: sanctioned_individuals_id_number
+        description: "ID Number from the sanctioned individual"
+      - name: sanctioned_individuals_id_type
+        description: "ID Type from the sanctioned individual"
+      - name: sanctioned_individuals_list_name
+        description: "List name related with the sanctioned individual"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: f_sanction_list_co_logs
+    description: "AE modeling for OriginationsV2 - Every row is a client marked inside the sanction list for certain ally - Aggregate"
+    columns:
+      - name: custom_event_application_santion_list_id_number_pairing_id
+        description: "Unique id for the event made with surrogate_key based on ecent_id, application_id, list_id & id_number"
+      - name: ocurred_on
+        description: "Event ocurred_on Timestamp as date"
+      - name: event_id
+        description: "UUID of the event"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: client_type
+        description: "Type of the client"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: sanctioned_individuals_country
+        description: "Country code from the sanctioned individual"
+      - name: sanctioned_individuals_full_name
+        description: "Full name from the sanctioned individual"
+      - name: sanctioned_individuals_id_number
+        description: "ID Number from the sanctioned individual"
+      - name: sanctioned_individuals_id_type
+        description: "ID Type from the sanctioned individual"
+      - name: sanctioned_individuals_list_name
+        description: "List name related with the sanctioned individual"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: f_kyc_seon_fraud_co
+    description: "AE modeling for KYC - Every row is an application_id - Aggregated by application_id"
+    columns:
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: seon_aml_details_has_crimelist_match
+        description: "Boolean field to indicate if the client has a match in the crimelist"
+      - name: seon_aml_details_has_pep_match
+        description: "Boolean field to indicate if the client has a match in the pep"
+      - name: seon_aml_details_has_sanction_match
+        description: "Boolean field to indicate if the client has a match in the sanction list"
+      - name: seon_aml_details_has_watchlist_match
+        description: "Boolean field to indicate if the client has a match in the watchlist"
+      - name: seon_applied_rules
+        description: "List of rules applied by SEON"
+      - name: seon_email_details_account_details
+        description: "Email account details"
+      - name: seon_email_details_breach_first_breach
+        description: "First breach found"
+      - name: seon_email_details_breach_have_i_been_pwned_listed
+        description: "Boolean field to indicate if the email is listed in have i been pwned"
+      - name: seon_email_details_breach_number_of_breaches
+        description: "Number of breaches found"
+      - name: seon_email_details_domain_created
+        description: "Domain creation date"
+      - name: seon_email_details_domain_updated
+        description: "Domain update date"
+      - name: seon_email_details_score
+        description: "Email score"
+      - name: seon_fail_reason
+        description: "Fail reason"
+      - name: seon_fraud_score
+        description: "Fraud score"
+      - name: seon_ip_details_score
+        description: "IP score"
+      - name: seon_phone_details_account_details
+        description: "Phone account details"
+      - name: seon_phone_details_score
+        description: "Phone score"
+      - name: seon_stat
+        description: "SEON status"
+  - name: f_kyc_seon_fraud_co_logs
+    description: "AE modeling for KYC - Every row is a fraud seon event"
+    columns:
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: seon_aml_details_has_crimelist_match
+        description: "Boolean field to indicate if the client has a match in the crimelist"
+      - name: seon_aml_details_has_pep_match
+        description: "Boolean field to indicate if the client has a match in the pep"
+      - name: seon_aml_details_has_sanction_match
+        description: "Boolean field to indicate if the client has a match in the sanction list"
+      - name: seon_aml_details_has_watchlist_match
+        description: "Boolean field to indicate if the client has a match in the watchlist"
+      - name: seon_applied_rules
+        description: "List of rules applied by SEON"
+      - name: seon_email_details_account_details
+        description: "Email account details"
+      - name: seon_email_details_breach_first_breach
+        description: "First breach found"
+      - name: seon_email_details_breach_have_i_been_pwned_listed
+        description: "Boolean field to indicate if the email is listed in have i been pwned"
+      - name: seon_email_details_breach_number_of_breaches
+        description: "Number of breaches found"
+      - name: seon_email_details_domain_created
+        description: "Domain creation date"
+      - name: seon_email_details_domain_updated
+        description: "Domain update date"
+      - name: seon_email_details_score
+        description: "Email score"
+      - name: seon_fail_reason
+        description: "Fail reason"
+      - name: seon_fraud_score
+        description: "Fraud score"
+      - name: seon_ip_details_score
+        description: "IP score"
+      - name: seon_phone_details_account_details
+        description: "Phone account details"
+      - name: seon_phone_details_score
+        description: "Phone score"
+      - name: seon_stat
+        description: "SEON status"
+  - name: f_applications_discounts_co
+    description: "AE modeling"
+    columns:
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: application_id
+        description: "UUID of the application"
+      - name: channel
+        description: "Channel of the transaction"
+      - name: client_id
+        description: "UUID of the client"
+      - name: custom_application_discount_idx_pairing_id
+        description: "Custom key for each discount in the application"
+      - name: custom_platform_version
+        description: "Custom platform version"
+      - name: discount_amount
+        description: "Discount amount"
+      - name: discount_percentage
+        description: "Discount percentage"
+      - name: discount_percentage_assumed_by_addi
+        description: "Discount percentage assumed by Addi"
+      - name: discount_percentage_assumed_by_ally
+        description: "Discount percentage assumed by Ally"
+      - name: discount_sub_order_id
+        description: "Discount suborder id"
+      - name: discount_type
+        description: "Discount type"
+      - name: ocurred_on
+        description: "Event ocurred on Timestamp as date"
+      - name: order_id
+        description: "Order ID for the purchase"
+      - name: product
+        description: "Application product (available since originations_v2 refactor)"
+      - name: store_slug
+        description: "Slug of the store"
+      - name: total_discount_percentage
+        description: "Total discount percentage"
+      - name: total_discount_percentage_assumed_by_addi
+        description: "Total discount percentage assumed by Addi"
+      - name: total_discount_percentage_assumed_by_ally
+        description: "Total discount percentage assumed by Ally"
+  - name: f_applications_discounts_co_logs
+    description: "AE modeling"
+    columns:
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: application_id
+        description: "UUID of the application"
+      - name: channel
+        description: "Channel of the transaction"
+      - name: client_id
+        description: "UUID of the client"
+      - name: custom_application_discount_idx_pairing_id
+        description: "Custom key for each discount in the application"
+      - name: custom_platform_version
+        description: "Custom platform version"
+      - name: discount_amount
+        description: "Discount amount"
+      - name: discount_percentage
+        description: "Discount percentage"
+      - name: discount_percentage_assumed_by_addi
+        description: "Discount percentage assumed by Addi"
+      - name: discount_percentage_assumed_by_ally
+        description: "Discount percentage assumed by Ally"
+      - name: discount_sub_order_id
+        description: "Discount suborder id"
+      - name: discount_type
+        description: "Discount type"
+      - name: event_id
+        description: "UUID of the event"
+      - name: ocurred_on
+        description: "Event ocurred on Timestamp as date"
+      - name: order_id
+        description: "Order ID for the purchase"
+      - name: product
+        description: "Application product (available since originations_v2 refactor)"
+      - name: store_slug
+        description: "Slug of the store"
+      - name: total_discount_percentage
+        description: "Total discount percentage"
+      - name: total_discount_percentage_assumed_by_addi
+        description: "Total discount percentage assumed by Addi"
+      - name: total_discount_percentage_assumed_by_ally
+        description: "Total discount percentage assumed by Ally"
+  - name: f_ally_management_ally_invoices_co
+    description: "Silver Direct Modeling for ally invoices table from Ally Management CO"
+    columns:
+      - name: invoice_id
+        description: "PK - ID on source, assumed as invoice id"
+      - name: type
+        description: "Invoice type"
+      - name: categories
+        description: "Categories of product covered in the in invoice"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: occurred_on
+        description: "Invoice Occurred On"
+      - name: start_date
+        description: "Invoice Start Date"
+      - name: end_date
+        description: "Invoice End Date"
+      - name: total
+        description: "Invoice Total amount"
+      - name: fee
+        description: "Invoice Fee amount"
+      - name: lead_gen_fee
+        description: "Invoice Lead Generation Fee amount"
+      - name: report_term
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: payment_term
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: '`data`'
+        description: "STRING with additional data in JSON form (accessible via : operator and dot notation)"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt."
+  - name: f_originations_identity_photos_third_party_calls_co
+    description: "Direct Modeling - AE "
+    columns:
+      - name: call_id
+        description: "UUID of the call"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: provider
+        description: "Identity Verification provider name"
+      - name: service_name
+        description: "The name of the service requested"
+      - name: method_name
+        description: "Method used for the request"
+      - name: url
+        description: "URL used for the request"
+      - name: status_result
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: status_code
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: request_headers
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: request_raw_body
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: response_headers
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: response_raw_body
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: created_at
+        description: "Idv third party created timestamp"
+  - name: f_api_fraud_logs_addi_clients_payments_bancolombia_collect_and_google_recaptcha_site_verify
+    description: "Unified Loki logs per log_trace_id for both logs of ADDI (client payments bancolombia collect) and Google (recaptcha site verify) APIs"
+    columns:
+      - name: log_sources
+        description: "Either the log_trace_id was found only on one of the two logs sources or in both"
+      - name: log_trace_id
+        description: "Table PK - Unique identifier for the log trace"
+      - name: clients_payments_request_id
+        description: "Log request UUID (addi client payments bancolombia collect)"
+      - name: clients_payments_timestamp
+        description: "Log request timestamp (addi client payments bancolombia collect)"
+      - name: google_recaptcha_request_id
+        description: "Log request UUID (google recaptcha site verify)"
+      - name: google_recaptcha_timestamp
+        description: "Log request timestamp (google recaptcha site verify)"
+      - name: clients_payments_endpoint
+        description: "Log endpoint URL (addi client payments bancolombia collect)"
+      - name: google_recaptcha_endpoint
+        description: "Log endpoint URL (google recaptcha site verify)"
+      - name: clients_payments_verb
+        description: "Log request verb (addi client payments bancolombia collect)"
+      - name: google_recaptcha_verb
+        description: "Log request verb (google recaptcha site verify)"
+      - name: clients_payments_id_number
+        description: "Log ID Number requested (addi client payments bancolombia collect)"
+      - name: clients_payments_cf_connecting_ip
+        description: "Log CF Connection IP data (addi client payments bancolombia collect)"
+      - name: clients_payments_x_forwarded_for
+        description: "Log X Forwarded for data (addi client payments bancolombia collect)"
+      - name: clients_payments_user_agent
+        description: "Log user agent (addi client payments bancolombia collect)"
+      - name: google_recaptcha_status
+        description: "Log request recaptcha status (google recaptcha site verify)"
+      - name: google_recaptcha_score
+        description: "Log request recaptcha status (google recaptcha site verify)"
+      - name: google_recaptcha_is_success
+        description: "Log request recaptcha confirmation of success (google recaptcha site verify)"

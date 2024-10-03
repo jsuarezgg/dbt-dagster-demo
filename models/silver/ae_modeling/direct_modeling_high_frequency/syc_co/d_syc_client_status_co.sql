@@ -9,10 +9,10 @@
 }}
 
 --bronze.syc_client_status_co
-SELECT
+SELECT DISTINCT
     -- DIRECT MODELING FIELDS
     calculation_date,
-    client_id,
+    scs.client_id as client_id,
     delinquency_balance,
     full_payment,
     min_payment,
@@ -21,8 +21,13 @@ SELECT
     total_payment,
     total_payment_addi,
     total_payment_pa,
+    CASE WHEN scms.client_id is null then 'lms'
+                                     else 'kordev'
+                                     end as loan_tape_source,
     -- MANDATORY FIELDS
     NOW() AS ingested_at,
     to_timestamp('{{ var("execution_date") }}') AS updated_at
 -- DBT SOURCE REFERENCE
-from {{ ref('syc_client_status_co') }}
+FROM {{ ref('syc_client_status_co') }} scs
+LEFT JOIN {{ ref('syc_client_migration_segments_co') }} scms
+ON scs.client_id  = scms.client_id

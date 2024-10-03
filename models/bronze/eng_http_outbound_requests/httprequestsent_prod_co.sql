@@ -18,16 +18,16 @@ SELECT
     to_date(ocurred_on) AS ocurred_on_date,
     NOW() AS ingested_at,
     to_timestamp('{{ var("execution_date") }}') AS updated_at,
-    json_obj.metadata.context.traceId AS trace_id,
-    json_obj.metadata.context.clientId AS client_id,
-    json_obj.request.thirdParty AS third_party,
-    json_obj.request.serviceName AS service_name,
-    json_obj.request.method AS method,
-    json_obj.request.url AS url,
-    json_obj.request.headers AS headers,
-    json_obj.request.body AS body,
-    json_obj.request.formAttributes AS form_attributes
-FROM {{ source('raw_http_outbound_requests', 'httprequestsent_co') }}
+    json_tmp.metadata.context.traceId AS trace_id,
+    json_tmp.metadata.context.clientId AS client_id,
+    json_tmp.request.thirdParty AS third_party,
+    json_tmp.request.serviceName AS service_name,
+    json_tmp.request.method AS method,
+    json_tmp.request.url AS url,
+    json_tmp.request.headers AS headers,
+    json_tmp.request.body AS body,
+    json_tmp.request.formAttributes AS form_attributes
+FROM {{ source('raw_backend_events', 'http_event_httprequestsent_co') }}
 
 {% if is_incremental() %}
     WHERE dt BETWEEN (to_date("{{ var('start_date') }}"- INTERVAL "5" HOUR)) AND to_date("{{ var('end_date') }}")

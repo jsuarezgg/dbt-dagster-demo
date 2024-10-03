@@ -13,15 +13,15 @@ WITH
 {%- if is_incremental() %}
 target_applications AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_origination_events_co_logs') }}
-    WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
+    WHERE CAST(ocurred_on AS DATE) BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         ocurred_on BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
 ,
 {%- endif %}
 f_origination_termination_events_co_logs AS (
     SELECT *
-    FROM {{ ref('f_origination_termination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_termination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications)
     {%- endif -%}
@@ -29,7 +29,7 @@ f_origination_termination_events_co_logs AS (
 ,
 f_origination_events_co_logs AS (
     SELECT *
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications)
     {%- endif -%}
@@ -37,7 +37,7 @@ f_origination_events_co_logs AS (
 ,
 f_origination_events_co AS (
     SELECT *
-    FROM {{ ref('f_origination_events_co') }}
+    FROM {{ source('silver_live', 'f_origination_events_co') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications)
     {%- endif -%}
@@ -88,8 +88,8 @@ application_last_event_termination_priority_co AS (
            oe.journey_name,
            COALESCE(lte_g.event_type,lte_a.event_type, oe.event_type) AS last_event_type,
            COALESCE(lte_g.journey_stage_name,lte_a.journey_stage_name, oe.journey_stage_name) AS last_journey_stage_name,
-           COALESCE(lte_g.event_name,lte_a.event_name, oe.event_name) AS last_event_name,
-           COALESCE(lte_g.event_id,lte_a.event_id, oe.event_id) AS last_event_id,
+           COALESCE(lte_g.event_name,lte_a.event_name, oe.last_event_name_processed) AS last_event_name,
+           COALESCE(lte_g.event_id,lte_a.event_id, oe.last_event_id_processed) AS last_event_id,
            COALESCE(lte_g.ocurred_on,lte_a.ocurred_on, oe.last_event_ocurred_on_processed) AS last_ocurred_on,
            from_utc_timestamp(COALESCE(lte_g.ocurred_on,lte_a.ocurred_on, oe.last_event_ocurred_on_processed), 'America/Bogota') AS last_ocurred_on_cot,
            -- DEBUG METRICS FOR EFFICIENT ANALYSIS IN BATCH

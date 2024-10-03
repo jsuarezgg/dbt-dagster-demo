@@ -120,7 +120,7 @@ SELECT
     a.d_vintage as application_date,
     MAX(b.current_execution_date) AS date_most_recent_score_available,
     element_at(array_sort(array_agg(CASE WHEN b.proba_pd_rc is not null then struct(b.current_execution_date, b.proba_pd_rc) else NULL end), (left, right) -> case when left.current_execution_date < right.current_execution_date then 1 when left.current_execution_date > right.current_execution_date then -1 when left.current_execution_date == right.current_execution_date then 0 end), 1).proba_pd_rc as most_recen_proba_pd_rc
-  from {{ ref('risk_master_table_co')}} AS a
+  from {{ source('gold','risk_master_table_co')}} AS a
   INNER JOIN score_data b on a.prospect_id = b.client_id and a.d_vintage >= b.current_execution_date and datediff(a.d_vintage, b.current_execution_date) < 40 AND a.client_type = 'CLIENT'
   GROUP BY 1,2
 )
@@ -255,7 +255,7 @@ select
   NOW() AS ingested_at,
   to_timestamp('{{ var("execution_date") }}') AS updated_at
 
-from      {{ ref('risk_master_table_co')}}         AS a
+from      {{ source('gold','risk_master_table_co')}}         AS a
 left join risk_master_table_latest_available_rc_model_score AS b on a.prospect_id = b.prospect_id and a.d_vintage = b.application_date
 left join {{ ref('d_syc_clients_co') }}                      AS c on a.prospect_id = c.client_id
 left join risk_lvl                                           AS d on a.prospect_id = d.client_id

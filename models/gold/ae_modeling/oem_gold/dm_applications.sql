@@ -14,7 +14,7 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
@@ -29,7 +29,7 @@ target_applications_br AS (
 {%- endif %}
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -45,7 +45,7 @@ f_applications_br AS (
 ,
 f_applications_declination_data_co AS (
     SELECT *
-    FROM {{ ref('f_applications_declination_data_co') }}
+    FROM {{ source('silver_live', 'f_applications_declination_data_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -72,7 +72,7 @@ applications_backfill_co AS (
         FIRST_VALUE(client_id,TRUE) AS client_id,
         FIRST_VALUE(client_type,TRUE) AS client_type,
         FIRST_VALUE(journey_name,TRUE) AS journey_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {% endif %}
@@ -185,20 +185,30 @@ bl_application_addi_shop_co AS (
 ,
 device_information_updated AS (
     SELECT *
-    FROM {{ ref('f_device_information_stage_co') }}
+    FROM {{ source('silver_live', 'f_device_information_stage_co') }}
     {%- if is_incremental() %}
     AND application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%})
 ,
-
 f_applications_order_details_v2_co AS (
     SELECT *
-    FROM {{ ref('f_applications_order_details_v2_co') }}
+    FROM {{ source('silver_live', 'f_applications_order_details_v2_co') }}
     {%- if is_incremental() %}
     AND application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%})
 ,
-
+f_applications_discounts_co AS (
+    SELECT
+        application_id,
+        round(sum(discount_percentage), 5) AS total_discount_percentage,
+        round(sum(discount_amount), 5) AS total_discount_amount
+    FROM {{ source('silver_live', 'f_applications_discounts_co') }}
+    {%- if is_incremental() %}
+    WHERE application_id IN (SELECT application_id FROM target_applications_co)
+    {%- endif -%}
+    GROUP BY 1
+)
+,
 application_dm AS (
 SELECT
     "CO" as country_code
@@ -215,6 +225,7 @@ SELECT
     ,bs.ally_brand
     ,bs.ally_vertical
     ,bs.ally_cluster
+    ,bs.account_kam_name
     ,a.order_id
     ,CASE WHEN COALESCE(a.client_type,bf.client_type) ILIKE '%client%' OR a.journey_name ILIKE '%client%' OR a.custom_is_returning_client_legacy THEN 'CLIENT' ELSE 'PROSPECT' END AS client_type
     ,a.custom_platform_version
@@ -253,6 +264,8 @@ SELECT
     ,apas.addi_shop_ally_period_opt_out_date AS addishop_opt_out_date
     ,apas.lead_gen_fee_rate
     ,fr.price AS fx_rate
+    ,apds.total_discount_percentage
+    ,apds.total_discount_amount
 --  ,a.client_is_transactional_based
 --  ,a.store_user_name
 --  ,a.application_channel_legacy
@@ -273,6 +286,7 @@ LEFT JOIN device_information_updated as diu ON diu.application_id=a.application_
 LEFT JOIN f_applications_order_details_v2_co as aod ON aod.application_id = a.application_id
 LEFT JOIN bl_application_addi_shop_co as apas ON apas.application_id = a.application_id
 LEFT JOIN d_fx_rate AS fr ON 'CO' = fr.country_code AND fr.is_active = TRUE
+LEFT JOIN f_applications_discounts_co AS apds ON apds.application_id = a.application_id
 
 UNION ALL
 
@@ -291,6 +305,7 @@ SELECT
     ,bs.ally_brand
     ,bs.ally_vertical
     ,bs.ally_cluster
+    ,NULL AS account_kam_name
     ,a.order_id
     ,CASE WHEN COALESCE(a.client_type,bf.client_type) ILIKE '%client%' OR a.journey_name ILIKE '%client%' OR a.custom_is_returning_client_legacy THEN 'CLIENT' ELSE 'PROSPECT' END AS client_type
     ,a.custom_platform_version
@@ -328,6 +343,8 @@ SELECT
     ,NULL AS addishop_opt_out_date
     ,NULL AS lead_gen_fee_rate
     ,fr.price AS fx_rate
+    ,NULL AS total_discount_percentage
+    ,NULL AS total_discount_amount
 --  ,NULL AS client_is_transactional_based
 --,null as store_user_name
 --,a.application_channel_legacy

@@ -38,6 +38,7 @@ SELECT
     -- CUSTOM ATTRIBUTES
     'V1' as custom_idv_version,
     CAST(TRUE AS BOOLEAN) AS custom_is_privacy_policy_accepted,
+    json_tmp.otp.code AS otp_code,
     NAMED_STRUCT(
         'event_id', json_tmp.eventId,
         'ocurred_on', ocurred_on::TIMESTAMP,

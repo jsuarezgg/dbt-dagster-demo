@@ -15,7 +15,7 @@ WITH past_x_applications AS (
         a.application_date,
         unix_timestamp(a.application_date) application_date_unix,
         ROW_NUMBER() OVER (PARTITION BY a.client_id ORDER BY a.application_date DESC) AS orig_order
-     FROM {{ ref('f_applications_co') }} a
+     FROM {{ source('silver_live', 'f_applications_co') }} a
      LEFT JOIN {{ ref('bl_application_product_co') }} ap     
          ON a.application_id = ap.application_id
      WHERE a.application_date >= add_months(current_date(),-18)

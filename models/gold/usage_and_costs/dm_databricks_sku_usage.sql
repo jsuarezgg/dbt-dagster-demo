@@ -13,5 +13,5 @@ SELECT
     usage_date,
     dbu_sku,
     SUM(databricks_price) AS metric_value
-FROM silver.f_databricks_costs
+FROM {{ ref('f_databricks_costs') }}
 GROUP BY 2, 3;

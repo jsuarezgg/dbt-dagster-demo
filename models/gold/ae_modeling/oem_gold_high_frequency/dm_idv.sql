@@ -37,8 +37,8 @@ WITH co_identitywastarted AS (
                 WHEN (idv.identitywadiscarded_at IS NOT NULL or idv.identitywadiscardedbyrisk_at IS NOT NULL) THEN 'discarded'
                 ELSE 'pending'
             END AS idv_status_new
-        FROM {{ ref('f_applications_co') }} app
-        LEFT JOIN {{ ref('f_idv_stage_co') }} idv                         ON app.application_id = idv.application_id
+        FROM {{ source('silver_live', 'f_applications_co') }} app
+        LEFT JOIN {{ source('silver_live', 'f_idv_stage_co') }} idv                         ON app.application_id = idv.application_id
         LEFT JOIN {{ ref('risk_master_table_co') }} rmt                     ON app.application_id = rmt.application_id
         WHERE idv.identitywastarted_at IS NOT NULL
             AND app.client_type = 'PROSPECT'
@@ -47,7 +47,7 @@ WITH co_identitywastarted AS (
     underwiting_stages AS (
         SELECT
             DISTINCT application_id
-        FROM {{ ref('f_origination_events_co_logs') }}
+        FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
         WHERE journey_stage_name ilike '%underwriting-co%' OR journey_stage_name ilike '%underwriting-psychometric-co%'
             AND journey_name ilike '%SANTANDER%'
     )
@@ -213,8 +213,8 @@ co_identityphotosstarted AS (
                 WHEN (idv.identityphotosdiscarded_at IS NOT NULL or idv.identityphotosdiscardedbyrisk_at IS NOT NULL) THEN 'discarded'
                 ELSE 'pending'
             END AS idv_status_new
-        FROM {{ ref('f_applications_co') }} app
-        LEFT JOIN {{ ref('f_idv_stage_co') }} idv                         ON app.application_id = idv.application_id
+        FROM {{ source('silver_live', 'f_applications_co') }} app
+        LEFT JOIN {{ source('silver_live', 'f_idv_stage_co') }} idv                         ON app.application_id = idv.application_id
         LEFT JOIN {{ ref('risk_master_table_co') }} rmt                     ON app.application_id = rmt.application_id
         WHERE idv.identityphotosstarted_at IS NOT NULL
     )
@@ -222,7 +222,7 @@ co_identityphotosstarted AS (
     underwiting_stages AS (
         SELECT
             DISTINCT application_id
-        FROM {{ ref('f_origination_events_co_logs') }}
+        FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
         WHERE journey_stage_name ilike '%underwriting-co%' OR journey_stage_name ilike '%underwriting-psychometric-co%'
             AND journey_name ilike '%SANTANDER%'
     )

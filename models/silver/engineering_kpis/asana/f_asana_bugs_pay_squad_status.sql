@@ -28,4 +28,4 @@ SELECT DISTINCT
     parent_task_gid, 
     cf_exploded.display_value AS task_status
 FROM select_explode
-WHERE cf_exploded.gid ='1205207302803952'
+WHERE cf_exploded.gid ='1205207302803940'

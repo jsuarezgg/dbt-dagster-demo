@@ -19742,6 +19742,10 @@ models:
         description: "Time to detect of the incident"
       - name: ttr
         description: "Time to resolve of the incident"
+      - name: affected_tiers
+        description: "Tier affected by the incident"
+      - name: downtime_duration
+        description: "Total time when system was unavailable"        
       - name: incident_url
         description: "URL of the incident"
   - name: notion_costs_database
@@ -19993,6 +19997,19 @@ models:
         description: "DESCRIPTION_PLACEHOLDER"
       - name: total_payment_pa
         description: "DESCRIPTION_PLACEHOLDER"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: syc_client_migration_segments_co
+    description: "Direct Modeling for domain SYC - AE"
+    columns:
+      - name: client_id
+        description: "UUID of the client"
+      - name: lms_segment
+        description: "LMS migration segment of each client"
+      - name: lms_migrated_at
+        description: "Timestamp when the client was migrated"
       - name: ingested_at
         description: "Runtime (datetime) when query was run"
       - name: updated_at
@@ -27836,6 +27853,8 @@ models:
         description: "Opportunity rango promedio compra"
       - name: opportunity_smbs_monthly_sales
         description: "Opportunity SMB's monthly sales"
+      - name: opportunity_ally_total_monthly_sales
+        description: "Opportunity ally total monthly sales" 
       - name: opportunity_ciuu
         description: "Opportunity CIUU"
       - name: opportunity_nit
@@ -27870,6 +27889,54 @@ models:
         description: "Airbyte - time at which the record was emitted and recorded by destination connector."
       - name: ingested_from_s3_at
         description: "Databricks - time at which the record was ingested from S3 into databricks lakehouse"
+      - name: opportunity_field_sales_business
+        description: "Opportunity Field Sales Businesss"
+      - name: opportunity_descartado_details
+        description: "Opportunity Descartado Details"
+      - name: opportunity_consolidation_date
+        description: "Opportunity Date of Consolidation"
+      - name: opportunity_aml
+        description: "Opportunity AML"
+      - name: opportunity_aml_reason
+        description: "Opportunity AML Reason"
+      - name: opportunity_accept_credit_card
+        description: "Opportunity Accept Credit Card flag"
+      - name: opportunity_accept_sistecredito
+        description: "Opportunity Accept Sistecredito flag"
+      - name: opportunity_kyp_approval_details
+        description: "Opportunity KYP Approval Details"
+      - name: opportunity_kyp_approval_reason
+        description: "Opportunity KYP Approval Reason"
+      - name: opportunity_kyp_comments
+        description: "Opportunity KYP Comments"
+      - name: opportunity_kyp_decision
+        description: "Opportunity KYP Decision"
+      - name: opportunity_kyp_details
+        description: "Opportunity KYP Details"
+      - name: opportunity_not_accepted_product_type
+        description: "Opportunity Not Accepted Product Type"
+      - name: opportunity_rejection_details_2
+        description: "Opportunity Rejection Details 2"
+      - name: opportunity_rejection_details
+        description: "Opportunity Rejection Details"
+      - name: opportunity_replicas
+        description: "Opportunity Replicas"
+      - name: opportunity_risky_neighborhood
+        description: "Opportunity Risky Neighborhood"
+      - name: opportunity_risky_vertical
+        description: "Opportunity Risky Vertical"
+      - name: opportunity_ally_store_geolocation
+        description: "Opportunity Ally Store Geolocation"
+      - name: opportunity_ally_store_latitude
+        description: "Opportunity Ally Store Latitude"
+      - name: opportunity_ally_store_longitude
+        description: "Opportunity Ally Store Longitude"
+      - name: opportunity_first_origination_date
+        description: "Opportunity Date of First Origination"
+      - name: opportunity_type
+        description: "Opportunity Product Type"
+      - name: opportunity_average_order_value
+        description: "Opportunity Average Order Value"
   - name: salesforce_opportunity_stage
     description: "Salesforce modeling - Native Data model object: Opportunity Stage - AE"
     columns:
@@ -30071,6 +30138,8 @@ models:
         description: "Data of the client"
       - name: preferences
         description: "Preferences of the client"
+      - name: device_tokens
+        description: "Tokens of the device"  
       - name: created_at
         description: "Created at"
       - name: ingested_at
@@ -32318,3 +32387,392 @@ models:
         description: "Runtime (datetime) when query was run"
       - name: updated_at
         description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: seonfraudobtained_co
+    description: "Event Bronze Modeling KYC - AE"
+    columns:
+      - name: event_name_original
+        description: "Original event type field"
+      - name: event_name
+        description: "Name of event"
+      - name: event_id
+        description: "UUID of the event"
+      - name: ocurred_on
+        description: "Timestamp of when the event occurred"
+      - name: ocurred_on_date
+        description: "Event ocurred_on Timestamp as date"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: seon_state
+        description: "State of the SEON request"
+      - name: seon_fraud_score
+        description: "SEON fraud score"
+      - name: seon_applied_rules
+        description: "SEON applied rules"
+      - name: seon_ip_details_score
+        description: "SEON IP details score"
+      - name: seon_email_details_score
+        description: "SEON email details score"
+      - name: seon_email_details_domain_created
+        description: "SEON email details domain created"
+      - name: seon_email_details_domain_updated
+        description: "SEON email details domain updated"
+      - name: seon_email_details_account_details
+        description: "SEON email details account details"
+      - name: seon_email_details_breach_have_i_been_pwned_listed
+        description: "SEON email details breach have i been pwned listed"
+      - name: seon_email_details_breach_number_of_breaches
+        description: "SEON email details breach number of breaches"
+      - name: seon_email_details_breach_first_breach
+        description: "SEON email details breach first breach"
+      - name: seon_phone_details_score
+        description: "SEON phone details score"
+      - name: seon_phone_details_carrier
+        description: "SEON phone details carrier"
+      - name: seon_phone_details_account_details
+        description: "SEON phone details account details"
+      - name: seon_aml_details_has_watchlist_match
+        description: "SEON AML details has watchlist match"
+      - name: seon_aml_details_has_sanction_match
+        description: "SEON AML details has sanction match"
+      - name: seon_aml_details_has_crimelist_match
+        description: "SEON AML details has crimelist match"
+      - name: seon_aml_details_has_pep_match
+        description: "SEON AML details has PEP match"
+  - name: bureaudataobtained_v2_co
+    description: "Modeling for domain KYC - AE"
+    columns:
+      - name: event_name_original
+        description: "Original event type field"
+      - name: event_name
+        description: "Name of the event"
+      - name: event_id
+        description: "UUID of the event"
+      - name: ocurred_on
+        description: "Timestamp of when the event occurred"
+      - name: ocurred_on_date
+        description: "Event ocurred_on Timestamp as date"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_balance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_closedAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_creditUtilizationRatio
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_initialApprovedAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_installmentAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_maximumDelinquency
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_openedAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_rating
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_score
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_totalClosedAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_balanceEvolution_averageAnalysis_totalOpenedAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_delinquent30Balance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_delinquent60Balance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_delinquent90Balance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_delinquentBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_higherBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_installmentAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_balance_totalBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_claims
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_closedAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_closedAccountsAHOCCB
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_customerSince
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_disagreementsToDate
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_lastSixMonthsQueries
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_negativeHistoryLastTwelveMonths
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_negativeOpenAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_openAccounts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_commercialSummaryExperian_summary_principal_openAccountsAHOCCB
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_averageSMLV
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_creditCardBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_creditCardInitialApprovedAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_creditCardInstallment
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_estimatedIncome
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_indebtednessCapacity
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_maximum
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_maximumSMLV
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_minimum
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_minimumSMLV
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_nonRevolvingTotalBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_nonRevolvingTotalInitialApprovedAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_nonRevolvingTotalInstallment
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_nonRevolvingTotalProducts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_paymentCapacity
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_totalActiveCreditCards
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_totalActiveProducts
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_totalBalance
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_totalInitialApprovedAmount
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeEstimator_totalInstallment
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeValidator_healthEntity
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_incomeValidator_pensionFundName
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter1_date
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter1_numberOfEntities
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter1_numberOfPurchases
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter1_numberOfRefinanced
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter1_numberOfWriteOffs
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter2_date
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter2_numberOfEntities
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter2_numberOfPurchases
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter2_numberOfRefinanced
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter2_numberOfWriteOffs
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter3_date
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter3_numberOfEntities
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter3_numberOfPurchases
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_queryFootprints
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter3_numberOfRefinanced
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_indebtednessSummary_quarter3_numberOfWriteOffs
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: commercial_provider
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: metadata_context_traceId
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: custom_kyc_event_version
+        description: "Custom attribute representing the version of the kyc event - either v1 or v2 domain"   
+  - name: applicationcreated_unnested_by_discounts_co
+    description: "Event Bronze Modeling - AE (UNNESTED)"
+    columns:
+      - name: custom_event_discount_idx_pairing_id
+        description: "Custom UUID built on top of joining: the event id + discount idx"
+      - name: custom_application_discount_idx_pairing_id
+        description: "Custom UUID built on top of joining: the application id + discount idx"
+      - name: event_name_original
+        description: "Original event type field"
+      - name: event_name
+        description: "Shortened event type field"
+      - name: event_id
+        description: "UUID of the event"
+      - name: ocurred_on
+        description: "Timestamp of when the event occurred"
+      - name: ocurred_on_date
+        description: "Event ocurred on Timestamp as date"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: store_slug
+        description: "Slug of the store"
+      - name: channel
+        description: "Application channel"
+      - name: product
+        description: "Application product (available since originations_v2 refactor)"
+      - name: custom_platform_version
+        description: "Custom attribute representing the version of the platform - either v1 or v2 domain"
+      - name: order_id
+        description: "Order ID for the purchase"
+      - name: total_discount_percentage_assumed_by_addi
+        description: "Total discount percentage assumed by Addi"
+      - name: total_discount_percentage_assumed_by_ally
+        description: "Total discount percentage assumed by Ally"
+      - name: total_discount_percentage
+        description: "Total discount percentage"
+      - name: discount_percentage_assumed_by_addi
+        description: "Discount percentage assumed by Addi"
+      - name: discount_percentage_assumed_by_ally
+        description: "Discount percentage assumed by Ally"
+      - name: discount_amount
+        description: "Discount amount"
+      - name: discount_percentage
+        description: "Discount percentage"
+      - name: discount_sub_order_id
+        description: "Discount sub order id"
+      - name: discount_type
+        description: "Discount type"
+  - name: ally_management_ally_invoices_co
+    description: "Bronze Direct Modeling for ally invoices table from Ally Management CO"
+    columns:
+      - name: invoice_id
+        description: "PK - ID on source, assumed as invoice id"
+      - name: type
+        description: "Invoice type"
+      - name: categories
+        description: "Categories of product covered in the in invoice"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: occurred_on
+        description: "Invoice Occurred On"
+      - name: start_date
+        description: "Invoice Start Date"
+      - name: end_date
+        description: "Invoice End Date"
+      - name: total
+        description: "Invoice Total amount"
+      - name: fee
+        description: "Invoice Fee amount"
+      - name: lead_gen_fee
+        description: "Invoice Lead Generation Fee amount"
+      - name: report_term
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: payment_term
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: '`data`'
+        description: "STRING with additional data in JSON form (accessible via : operator and dot notation)"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt."
+  - name: originations_identity_photos_third_party_calls_co
+    description: "Direct Modeling - AE "
+    columns:
+      - name: call_id
+        description: "UUID of the call"
+      - name: application_id
+        description: "UUID of the application"
+      - name: client_id
+        description: "UUID of the client"
+      - name: provider
+        description: "Identity Verification provider name"
+      - name: service_name
+        description: "The name of the service requested"
+      - name: method_name
+        description: "Method used for the request"
+      - name: url
+        description: "URL used for the request"
+      - name: status_result
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: status_code
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: request_headers
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: request_raw_body
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: response_headers
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: response_raw_body
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: created_at
+        description: "Idv third party created timestamp"
+  - name: api_google_recaptcha_site_verify_logs
+    description: "Loki Logs per log_request_id for both Google (recaptcha site verify) API"
+    columns:
+      - name: data_platform_source
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_request_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_endpoint
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_description
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_timestamp
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_verb
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_trace_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_trace
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_entry_flow_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_status
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_score
+        description: "DESCRIPTION_PLACEHOLDER"
+  - name: api_addi_clients_payments_bancolombia_collect_logs
+    description: "Loki Logs per log_request_id for both ADDI (client payments bancolombia collect) API"
+    columns:
+      - name: data_platform_source
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_request_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_endpoint
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_url_id_number
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_description
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_timestamp
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_body_cellphone_last_digits
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_verb
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_trace_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_trace
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_entry_flow_id
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_headers_cf_connecting_ip
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: log_headers_x_forwarded_for
+        description: "DESCRIPTION_PLACEHOLDER"

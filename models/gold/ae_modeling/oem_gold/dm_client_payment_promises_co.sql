@@ -25,7 +25,7 @@ WHERE kcca.custom_attribute_name='resolutionCollectionsTree'
 SELECT cpp.*, 
        COUNT(coalesce(cp.payment_id,cpp.client_payment_id)) AS payments_num,
        COLLECT_SET(named_struct('payment_id',coalesce(cp.payment_id,cpp.client_payment_id),'payment_amount',cp.amount)) as payments_details
-FROM {{ ref('f_client_payment_promises_co') }} cpp
+FROM {{ source('silver_live', 'f_client_payment_promises_co') }} cpp
 LEFT JOIN {{ ref('f_client_payments_client_payments_co') }} cp ON cp.client_id = cpp.client_id 
                                                                AND cp.payment_date BETWEEN cpp.start_date AND cpp.end_date
 GROUP BY ALL   

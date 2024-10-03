@@ -13,15 +13,15 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
-    WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
+    FROM {{ source('silver_live', 'f_applications_co') }}
+    WHERE CAST(last_event_ocurred_on_processed AS DATE) BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
 ,
 target_applications_br AS (
     SELECT DISTINCT application_id
     FROM {{ ref('f_applications_br') }}
-    WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
+    WHERE CAST(last_event_ocurred_on_processed AS DATE) BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
 ,
@@ -39,7 +39,7 @@ f_applications_co AS (
 	    preapproval_expiration_date,
 	  	preapproval_amount,
 	  	custom_is_preapproval_completed
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -53,7 +53,7 @@ f_origination_events_co_logs AS (
 		channel,
 		journey_name,
 		client_type
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -194,7 +194,7 @@ apps_no_preapp as (
         application_date :: date desc ROWS BETWEEN 30 PRECEDING
         AND CURRENT ROW
     ) as apps_no_preapp
-  FROM {{ ref('f_applications_co') }}
+  FROM {{ source('silver_live', 'f_applications_co') }}
   WHERE
     channel NOT like '%PRE%APPROVAL%'
     and product = "PAGO_CO"

@@ -15,8 +15,8 @@ with clean_application_emails as
   orig.loan_id, 
   upper(split(application_email,'[@]')[0]) clean_email, 
   application_cellphone
-  from {{ ref('f_pii_applications_co') }} app
-  left join {{ ref('f_originations_bnpl_co') }} orig
+  from {{ source('silver_live', 'f_pii_applications_co') }} app
+  left join {{ source('silver_live', 'f_originations_bnpl_co') }} orig
       on app.application_id = orig.application_id
 ),
 clean_email_prev_changed as (

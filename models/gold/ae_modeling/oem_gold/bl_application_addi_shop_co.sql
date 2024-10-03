@@ -12,21 +12,21 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
-    WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
+    FROM {{ source('silver_live', 'f_applications_co') }}
+    WHERE CAST(last_event_ocurred_on_processed AS DATE) BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 ),
 
 target_applications_br AS (
     SELECT DISTINCT application_id
     FROM {{ ref('f_applications_br') }}
-    WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
+    WHERE CAST(last_event_ocurred_on_processed AS DATE) BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 ),
 
 target_shopping_intents_co AS (
     SELECT DISTINCT shopping_intent_id
-    FROM {{ ref('f_marketplace_transaction_attributable_co') }}
+    FROM {{ source('silver_live', 'f_marketplace_transaction_attributable_co') }}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
 ),
 
@@ -39,7 +39,7 @@ target_shopping_intents_br AS (
 {%- endif %}
 f_marketplace_transaction_attributable_co AS (
     SELECT *
-    FROM {{ ref('f_marketplace_transaction_attributable_co') }}
+    FROM {{ source('silver_live', 'f_marketplace_transaction_attributable_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -47,7 +47,7 @@ f_marketplace_transaction_attributable_co AS (
 
 f_marketplace_shopping_intents_co AS (
     SELECT *
-    FROM {{ ref('f_marketplace_shopping_intents_co') }}
+    FROM {{ source('silver_live', 'f_marketplace_shopping_intents_co') }}
     {%- if is_incremental() %}
     WHERE shopping_intent_id IN (SELECT shopping_intent_id FROM target_shopping_intents_co)
     {%- endif -%}
@@ -71,7 +71,7 @@ f_marketplace_shopping_intents_br AS (
 
 f_originations_bnpl_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -79,7 +79,7 @@ f_originations_bnpl_co AS (
 
 f_originations_bnpn_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpn_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpn_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -265,7 +265,7 @@ SELECT
     client_id,
     shopping_intent_id,
     ally_slug,
-    ocurred_on_date,
+    CAST(last_event_ocurred_on_processed AS DATE) AS ocurred_on_date,
     shopping_intent_timestamp,
     channel
 FROM f_marketplace_shopping_intents_co
@@ -279,7 +279,7 @@ apps_interest_applications_co as (
       application_date,
       ally_slug,
       channel
-    FROM {{ ref('f_applications_co') }} AS io_co
+    FROM {{ source('silver_live', 'f_applications_co') }} AS io_co
     WHERE 1=1
       AND lower(io_co.journey_name) NOT LIKE '%preapproval%' -- Preapproval journeys are not included in this table scope.
       AND io_co.application_date < '2023-10-12'
@@ -313,9 +313,9 @@ SELECT
     addishop_channel,
     CASE WHEN last_shopping_intention IS NOT NULL THEN TRUE ELSE FALSE END AS is_addishop_referral,
     CASE WHEN last_shopping_intention IS NOT NULL AND apa.ally_slug IS NOT NULL THEN TRUE ELSE FALSE END AS is_addishop_referral_paid,
-    apa.start_date AS addi_shop_ally_period_opt_in_date,
-    apa.end_date AS addi_shop_ally_period_opt_out_date,
-    apa.lead_gen_fee AS lead_gen_fee_rate,
+    CASE WHEN last_shopping_intention IS NOT NULL AND apa.ally_slug IS NOT NULL THEN apa.start_date ELSE NULL END AS addi_shop_ally_period_opt_in_date,
+    CASE WHEN last_shopping_intention IS NOT NULL AND apa.ally_slug IS NOT NULL THEN apa.end_date ELSE NULL END AS addi_shop_ally_period_opt_out_date,
+    CASE WHEN last_shopping_intention IS NOT NULL AND apa.ally_slug IS NOT NULL THEN apa.lead_gen_fee ELSE NULL END AS lead_gen_fee_rate,
     NOW() AS ingested_at
 FROM apps_addishop_application_attribution aa
 LEFT JOIN {{ ref('dm_addishop_paying_allies_co') }} apa
@@ -339,7 +339,7 @@ apps_new_application_shop_attributed AS (
     apa.end_date AS addi_shop_ally_period_opt_out_date,
     apa.lead_gen_fee AS lead_gen_fee_rate,
     NOW() AS ingested_at
-  FROM {{ ref('f_applications_order_details_v2_co') }} o
+  FROM {{ source('silver_live', 'f_applications_order_details_v2_co') }} o
   LEFT JOIN apps_shopping_intents si
     ON o.order_shopping_intent_id = si.shopping_intent_id
   LEFT JOIN {{ ref('dm_addishop_paying_allies_co') }} apa
@@ -349,7 +349,7 @@ apps_new_application_shop_attributed AS (
     AND order_shopping_intent_attributable IS TRUE
   WHERE 1=1
     AND order_shopping_intent_attributable IS NOT NULL
-    AND o.ocurred_on_date > '2023-10-11'
+    AND CAST(o.last_event_ocurred_on_processed AS DATE) > '2023-10-11'
 ),
 
 apps_final_table as (

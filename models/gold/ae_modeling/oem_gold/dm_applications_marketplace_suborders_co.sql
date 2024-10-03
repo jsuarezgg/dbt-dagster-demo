@@ -14,7 +14,7 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
@@ -22,7 +22,7 @@ target_applications_co AS (
 {%- endif %}
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -30,7 +30,7 @@ f_applications_co AS (
 ,
 f_applications_marketplace_suborders_co AS (
     SELECT *
-    FROM {{ ref('f_applications_marketplace_suborders_co') }}
+    FROM {{ source('silver_live', 'f_applications_marketplace_suborders_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -77,7 +77,7 @@ applications_backfill_co AS (
         FIRST_VALUE(client_id,TRUE) AS client_id,
         FIRST_VALUE(client_type,TRUE) AS client_type,
         FIRST_VALUE(journey_name,TRUE) AS journey_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {% endif %}
@@ -104,6 +104,7 @@ SELECT
     bs.ally_brand AS suborder_ally_brand,
     bs.ally_vertical AS suborder_ally_vertical,
     bs.ally_cluster AS suborder_ally_cluster,
+    bs.account_kam_name AS suborder_account_kam_name,
     bs.status_ally_brand AS status_ally_brand_suborder,
     bs.status_ally_slug AS status_ally_slug_suborder,
     a.requested_amount AS application_requested_amount,

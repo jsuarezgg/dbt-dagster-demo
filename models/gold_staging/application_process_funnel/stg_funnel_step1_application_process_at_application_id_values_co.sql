@@ -10,13 +10,13 @@
 WITH
 f_applications_co_filtered AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE application_id IS NOT NULL
 )
 ,
 f_originations_bnpl_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
 )
 ,
 dm_applications_co_reference_data AS (
@@ -35,7 +35,7 @@ bl_application_preapproval_proxy AS (
 ,
 f_origination_events_co_logs_filtered AS (
     SELECT *
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     WHERE application_id IS NOT  NULL
 )
 ,
@@ -46,7 +46,7 @@ bl_application_product_co AS (
 ,
 f_applications_marketplace_suborders_co AS (
     SELECT *
-    FROM {{ ref('f_applications_marketplace_suborders_co') }}
+    FROM {{ source('silver_live', 'f_applications_marketplace_suborders_co') }}
 )
 ,
 bl_application_preapproval_proxy_co AS (
@@ -61,6 +61,11 @@ bl_ally_brand_ally_slug_status_co AS (
     WHERE country_code = 'CO'
 )
 ,
+bl_application_addi_shop_co AS (
+    SELECT *
+    FROM {{ ref('bl_application_addi_shop_co') }}
+)
+,
 aux_funnel_application_journey_grouping_co AS (
     SELECT *
     FROM {{ ref('aux_funnel_application_journey_grouping') }}
@@ -73,7 +78,8 @@ marketplace_applications_ally_extra_arrays AS (
         mktp_so.application_id,
         COLLECT_SET(bs.ally_cluster) AS suborders_ally_cluster_array,
         COLLECT_SET(bs.ally_brand) AS suborders_ally_brand_array,
-        COLLECT_SET(bs.ally_vertical) AS suborders_ally_vertical_array
+        COLLECT_SET(bs.ally_vertical) AS suborders_ally_vertical_array,
+        COLLECT_SET(bs.account_kam_name) AS suborders_account_kam_name_array
     FROM      f_applications_marketplace_suborders_co AS mktp_so
     LEFT JOIN bl_ally_brand_ally_slug_status_co       AS bs      ON bs.ally_slug = mktp_so.suborder_ally_slug
     GROUP BY 1
@@ -149,7 +155,11 @@ FROM
         CASE
             WHEN suborders_ally_vertical_array IS NOT NULL THEN CONCAT_WS(',', suborders_ally_vertical_array)
             ELSE ally_vertical
-        END AS ally_verticals_string
+        END AS ally_verticals_string,
+        CASE
+            WHEN suborders_account_kam_name_array IS NOT NULL THEN CONCAT_WS(',', suborders_account_kam_name_array)
+            ELSE account_kam_name
+        END AS account_kam_names_string
     FROM
     ( -- STEP 1: Backfill some fields, custom logic on others and columns from other sources
         SELECT
@@ -175,18 +185,23 @@ FROM
             CASE WHEN aea.suborders_ally_cluster_array  IS NOT NULL THEN IF(SIZE(aea.suborders_ally_cluster_array)>0,  SORT_ARRAY(aea.suborders_ally_cluster_array),NULL)  END AS suborders_ally_cluster_array,
             CASE WHEN aea.suborders_ally_brand_array    IS NOT NULL THEN IF(SIZE(aea.suborders_ally_brand_array)>0,    SORT_ARRAY(aea.suborders_ally_brand_array),NULL)    END AS suborders_ally_brand_array,
             CASE WHEN aea.suborders_ally_vertical_array IS NOT NULL THEN IF(SIZE(aea.suborders_ally_vertical_array)>0, SORT_ARRAY(aea.suborders_ally_vertical_array),NULL) END AS suborders_ally_vertical_array,
+            CASE WHEN aea.suborders_account_kam_name_array IS NOT NULL THEN IF(SIZE(aea.suborders_account_kam_name_array)>0, SORT_ARRAY(aea.suborders_account_kam_name_array),NULL) END AS suborders_account_kam_name_array,
             -- BNPL ORIGINATION FIELDS
             o.term,
             -- ALLY RELATED VARIABLES
             abas.ally_cluster, -- with same default
             abas.ally_brand,
             abas.ally_vertical,
+            abas.account_kam_name,
             -- PREAPPROVAL CUSTOM PROXY
             COALESCE(pp.is_using_preapproval_proxy, FALSE) AS is_using_preapproval_proxy,  -- flag_preapproval
             -- APPLICATION PRODUCT
             ap.original_product,
             ap.synthetic_product_category,
             ap.synthetic_product_subcategory,
+            -- ADDI-SHOP
+            COALESCE(aas.is_addishop_referral, FALSE) AS is_addishop_referral_with_default,
+            COALESCE(aas.is_addishop_referral_paid, FALSE) AS is_addishop_referral_paid_with_default,
             -- DEBUGGING TIMESTAMP
             from_utc_timestamp(a.application_date,'America/Bogota') AS debug_application_datetime_local
         FROM        f_applications_co_filtered                            AS a
@@ -197,6 +212,7 @@ FROM
         LEFT JOIN   bl_ally_brand_ally_slug_status_co                     AS abas ON COALESCE(a.ally_slug, abt.ally_slug) = abas.ally_slug -- country prefiltered already
         LEFT JOIN   bl_application_preapproval_proxy_co                   AS pp   ON a.application_id = pp.application_id
         LEFT JOIN   bl_application_product_co                             AS ap   ON a.application_id = ap.application_id
+        LEFT JOIN   bl_application_addi_shop_co                           AS aas  ON a.application_id = aas.application_id
         LEFT JOIN   marketplace_applications_ally_extra_arrays            AS aea  ON a.application_id = aea.application_id
         LEFT JOIN   dm_applications_co_reference_data                     AS ard  ON TRUE
         -- This where is to make sure to get only data from applications that have already been processed

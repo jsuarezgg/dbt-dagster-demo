@@ -18,7 +18,7 @@ with loanreturnedfromtrust_co AS (
         PARTITION BY loan_id
         ORDER BY ocurred_on DESC
       ) AS rn
-    FROM {{ ref('loanreturnedfromtrust_co') }}
+    FROM {{ source('bronze_live', 'loanreturnedfromtrust_co') }}
   ) AS loanreturnedfromtrust_co_rnkd
   WHERE rn = 1
 
@@ -34,7 +34,7 @@ with loanreturnedfromtrust_co AS (
         ocurred_on desc
     ) as rn
   from
-    {{ ref('loansoldtotrust_co') }}
+    {{ source('bronze_live', 'loansoldtotrust_co') }}
   order by
     loan_id,
     sold_on desc,
@@ -49,7 +49,7 @@ loantransfernotificationsent_co as (
         ocurred_on desc
     ) as rn
   from
-    {{ ref('loantransfernotificationsent_co') }}
+    {{ source('bronze_live', 'loantransfernotificationsent_co') }}
   order by
     loan_id,
     ocurred_on desc,

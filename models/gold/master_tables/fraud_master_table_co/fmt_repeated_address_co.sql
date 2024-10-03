@@ -12,7 +12,7 @@ WITH apps_data AS (
     LOWER(a.fixed_address) AS fixed_address,
     orig.origination_date,
     orig.client_id
-    FROM {{ ref('f_originations_bnpl_co') }} orig
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }} orig
     LEFT JOIN {{ source('gold', 'fmt_clean_address_apps_co') }} a ON a.application_id = orig.application_id
     WHERE orig.loan_id IS NOT NULL
     AND a.fixed_address IS NOT NULL

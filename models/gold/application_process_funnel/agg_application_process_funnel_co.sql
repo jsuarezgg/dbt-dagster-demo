@@ -25,6 +25,9 @@ WITH data_with_array_struct AS (
         flag_approval_event,
         --applications_array,
         term,
+        account_kam_name,
+        is_addishop_referral,
+        is_addishop_referral_paid,
         synthetic_product_category,
         synthetic_product_subcategory,
         debug_num_unique_applications AS num_apps,
@@ -87,6 +90,9 @@ data_exploded AS (
 		channel,
 		client_type,
         term,
+        account_kam_name,
+        is_addishop_referral,
+        is_addishop_referral_paid,
         synthetic_product_category,
         synthetic_product_subcategory,
 		flag_preapproval,
@@ -111,6 +117,9 @@ data_exploded_to_values AS (
         channel,
         client_type,
         term,
+        account_kam_name,
+        is_addishop_referral,
+        is_addishop_referral_paid,
         synthetic_product_category,
         synthetic_product_subcategory,
         flag_preapproval,
@@ -140,6 +149,9 @@ SELECT
     ally_cluster,
     client_type,
     term,
+    account_kam_name,
+    is_addishop_referral,
+    is_addishop_referral_paid,
     synthetic_product_category,
     synthetic_product_subcategory,
     stage,
@@ -153,7 +165,7 @@ SELECT
     FIRST_VALUE(application_process_id) AS exemplar_application_process_id
     --sum(num_apps) AS sum_num_apps
 FROM data_exploded_to_values
-GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
 ORDER BY 1 DESC, 2 DESC
 ),
 
@@ -173,6 +185,9 @@ pre_udw as (
     ally_cluster,
     client_type,
     term,
+    account_kam_name,
+    is_addishop_referral,
+    is_addishop_referral_paid,
     'GENERIC' as synthetic_product_category,
     'GENERIC' as synthetic_product_subcategory,
     stage,
@@ -184,7 +199,7 @@ pre_udw as (
     first(exemplar_application_process_id) as exemplar_application_process_id
   FROM stages_agg_final_data
   WHERE stage = 'pre_udw_conversion'
-  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)
 ,
 
 pre_udw_for_e2e as (
@@ -215,6 +230,9 @@ e2e as (
     pre.ally_cluster,
     pre.client_type,
     pre.term,
+    pre.account_kam_name,
+    pre.is_addishop_referral,
+    pre.is_addishop_referral_paid,
     COALESCE(post.synthetic_product_category, pre.synthetic_product_category) as synthetic_product_category,
     COALESCE(post.synthetic_product_subcategory, pre.synthetic_product_subcategory) as synthetic_product_subcategory,
     'E2E' as stage,
@@ -243,9 +261,12 @@ e2e as (
   AND coalesce(pre.ally_cluster, 'no_cluster') = coalesce(post.ally_cluster, 'no_cluster')
   AND pre.client_type = post.client_type
   AND coalesce(pre.term, 'no_term') = coalesce(post.term, 'no_term')
+  AND coalesce(pre.account_kam_name, 'no_kam') = coalesce(post.account_kam_name, 'no_kam')
+  AND pre.is_addishop_referral = post.is_addishop_referral
+  AND pre.is_addishop_referral_paid = post.is_addishop_referral_paid
   and coalesce(pre.synthetic_product_category, 'no_spc') = coalesce(post.synthetic_product_category, 'no_spc')
   and coalesce(pre.synthetic_product_subcategory, 'no_sbpc') = coalesce(post.synthetic_product_subcategory, 'no_sbpc')
-  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
   ),
 
 final_table AS (

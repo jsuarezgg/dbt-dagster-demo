@@ -9,11 +9,11 @@
 }}
 
 --bronze.syc_loan_status_co
-SELECT
+SELECT DISTINCT
     -- DIRECT MODELING FIELDS
     calculation_date,
     loan_id,
-    client_id,
+    sls.client_id as client_id,
     accrued_interest_this_month,
     applicable_rate,
     condoned_interest_this_month,
@@ -67,8 +67,13 @@ SELECT
     late_fees AS unpaid_collection_fees,
     total_late_fees_paid AS total_collection_fees_paid,
     total_late_fees_condoned AS total_collection_fees_condoned,
+    CASE WHEN scms.client_id is null then 'lms'
+                                     else 'kordev'
+                                     end as loan_tape_source,
     -- MANDATORY FIELDS
     NOW() AS ingested_at,
     to_timestamp('{{ var("execution_date") }}') AS updated_at
 -- DBT SOURCE REFERENCE
-from {{ ref('syc_loan_status_co') }}
+FROM {{ ref('syc_loan_status_co') }} sls
+LEFT JOIN {{ ref('syc_client_migration_segments_co') }} scms
+ON sls.client_id  = scms.client_id

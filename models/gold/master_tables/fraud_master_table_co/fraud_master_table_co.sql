@@ -167,9 +167,9 @@ io.io_rule_results_rulesMatched,
 io.io_rejection_rule_results_rules,
 io.io_rejection_rule_results_score,
 io.io_rejection_rule_results_rulesMatched
-from {{ ref('f_pii_applications_co') }} a
+from {{ source('silver_live', 'f_pii_applications_co') }} a
 left join {{ ref('fmt_fpd_models_co') }} dul on a.application_id = dul.application_id
-left join {{ ref('f_originations_bnpl_co') }} orig on a.application_id = orig.application_id
+left join {{ source('silver_live', 'f_originations_bnpl_co') }} orig on a.application_id = orig.application_id
 left join {{ ref('dm_loan_status_co') }} ls on orig.loan_id = ls.loan_id
 left join {{ ref('fmt_client_info_co') }} ci on a.client_id = ci.prospect_id 
 left join {{ ref('fmt_emailage_co') }} em on a.application_id = em.application_id

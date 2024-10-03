@@ -19,8 +19,8 @@ prev_app_date as (
   loan_id,
   coalesce(origination_date,application_date) as date_time,
   lag(coalesce(origination_date,application_date)) over (partition by apps.client_id order by coalesce(origination_date,application_date) asc) prev_app_date
-  from {{ ref('f_pii_applications_co') }} apps
-  left join {{ ref('f_originations_bnpl_co')}} orig
+  from {{ source('silver_live', 'f_pii_applications_co') }} apps
+  left join {{ source('silver_live', 'f_originations_bnpl_co')}} orig
   on apps.application_id = orig.application_id
 
 ),
@@ -39,8 +39,8 @@ preapproval_application as (
     when ( a.application_date > preapps.application_date and a.requested_amount <= preapps.preapproval_amount ) then 'ADDI Preapproval'
     else 'Not Preapproval'
     end as preapproval_application
-  from {{ ref('f_pii_applications_co') }} a
-  left join {{ ref('f_originations_bnpl_co')}} orig
+  from {{ source('silver_live', 'f_pii_applications_co') }} a
+  left join {{ source('silver_live', 'f_originations_bnpl_co')}} orig
   on a.application_id = orig.application_id
   left join preapps 
     on a.client_id = preapps.prospect_id

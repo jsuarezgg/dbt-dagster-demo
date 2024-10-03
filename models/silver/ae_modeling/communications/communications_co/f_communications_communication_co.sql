@@ -1,6 +1,8 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
+        unique_key='communication_id',
+        incremental_strategy='merge',
         full_refresh = false,
         post_hook=[
             'ANALYZE TABLE {{ this }} COMPUTE STATISTICS',
@@ -28,3 +30,6 @@ SELECT
         
 -- DBT SOURCE REFERENCE
 FROM {{ ref('communications_communication_co') }}
+{% if is_incremental() %}
+WHERE created_at BETWEEN (to_timestamp("{{ var('start_date') }}" - INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp("{{ var('end_date') }}")
+{% endif %}

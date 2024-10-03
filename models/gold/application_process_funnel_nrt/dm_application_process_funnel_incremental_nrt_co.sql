@@ -116,7 +116,7 @@ product_assignation as (
 	from applications_backfill_step_2 abs
 	left join {{ ref('bl_application_product_co')}} blap
 	on abs.application_id = blap.application_id
-	left join {{ ref('f_originations_bnpl_co') }} orig
+	left join {{ source('silver_live', 'f_originations_bnpl_co') }} orig
 	on abs.application_id = orig.application_id
 )
 ,

@@ -17,6 +17,7 @@ SELECT
     email,
     data,
     preferences,
+    device_tokens,
     created_at,
     -- CUSTOM ATTRIBUTES
     NOW() AS ingested_at,

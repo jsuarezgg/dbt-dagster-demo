@@ -76,4 +76,4 @@
   neuroId_totalSessionIdleTime as nid_totalSessionIdleTime,
   neuroId_totalSessionInteractionTime as nid_totalSessionInteractionTime
 
-  from {{ ref('f_kyc_neuroid_v2_co') }}
+  from {{ source('silver_live', 'f_kyc_neuroid_v2_co') }}

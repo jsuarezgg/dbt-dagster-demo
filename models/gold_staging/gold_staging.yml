@@ -12,6 +12,10 @@ models:
         description: "Journey Homolog value"
       - name: is_synthetic
         description: "Boolean flag - whether this journey_name_for_funnel is an original events value (false) or a custom one (true)"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
   - name: aux_funnel_application_journey_stage_grouping_view
     description: "Auxiliary Gold Staging table to remap application journey name values into journey stage homologs"
     columns:
@@ -23,3 +27,166 @@ models:
         description: "Boolean flag - whether this journey_stage_name is an original events value (false) or a custom one (true)"
       - name: journey_stage_homolog
         description: "Journey Stage Homolog value"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: aux_revenue_and_originations_stores_cities_regions_mapping
+    description: "Auxiliary table to bring the city and region names of the list of unique store_slug"
+    columns:
+      - name: country_code
+        description: "Code of the country (BR or CO)"
+      - name: store_slug
+        description: "Slug of the store"
+      - name: store_city_code
+        description: "City code of the store"
+      - name: city_name
+        description: "Name of the city"
+      - name: region_name
+        description: "Name of the region related to the city"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: stg_funnel_step1_application_process_at_application_id_values_co
+    description: "Staging restricted-access table. Step 1 of the processing for funnel data at the application process level. Represents the pre-processed data (obtained from the best sources and after some data cleaning) at the application id level (this is the target granularity of the table) that’s gonna be used in the next step to build the application process id groupings."
+    columns:
+      - name: application_id
+        description: "UUID of the application"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: channel
+        description: "Application channel"
+      - name: client_id
+        description: "UUID of the client"
+      - name: client_type
+        description: "Type of the client (Prospect or Returning Client)"
+      - name: original_journey_name
+        description: "Original events applications journey name"
+      - name: synthetic_journey_name
+        description: "Modified version of the original events applications journey name"
+      - name: journey_homolog
+        description: "Homolog of the synthetic_journey_name"
+      - name: has_finished
+        description: "Boolean flag representing if the entity (application, application process, etc) is considered as finished"
+      - name: has_reached_approval
+        description: "Boolean flag representing if the entity (application, application process, etc) is considered as approved"
+      - name: minimum_ocurred_on_local
+        description: "Minimum applications' events ocurred_on timestamp at the local timezone (COT)"
+      - name: approval_ocurred_on_local
+        description: "Approval applications ocurred_on timestamp at the local timezone (COT)"
+      - name: synthetic_ocurred_on_local
+        description: "Custom timestamp at the local timezone (COT) based on custom logic on top of: approval_ocurred_on_local & minimum_ocurred_on_local"
+      - name: synthetic_ocurred_on_date_local
+        description: "Custom date at the local timezone (COT) based on custom logic on top of: approval_ocurred_on_local & minimum_ocurred_on_local"
+      - name: suborders_ally_slug_array
+        description: "Application list of suborder allies (only applicable (>0) for marketplace transactions) - Ordered and validated only for marketplace applications"
+      - name: suborders_ally_cluster_array
+        description: "Application list of unique suborder ally clusters (only applicable (>0) for marketplace transactions) - Ordered and validated only for marketplace applications"
+      - name: suborders_ally_brand_array
+        description: "Application list of unique suborder ally brands (only applicable (>0) for marketplace transactions) - Ordered and validated only for marketplace applications"
+      - name: suborders_ally_vertical_array
+        description: "Application list of unique suborder ally vertical (only applicable (>0) for marketplace transactions) - Ordered and validated only for marketplace applications"
+      - name: suborders_account_kam_name_array
+        description: "Application list of unique suborder ally account (salesforce) KAM name (only applicable (>0) for marketplace transactions) - Ordered and validated only for marketplace applications"
+      - name: term
+        description: "Term of the loan"
+      - name: ally_cluster
+        description: "Ally cluster (KA/SMB) according to the CRM ally status - Business logic from gold.bl_ally_brand_ally_slug_status"
+      - name: ally_brand
+        description: "Brand of the ally"
+      - name: ally_vertical
+        description: "Vertical of the ally slug"
+      - name: is_using_preapproval_proxy
+        description: "Custom boolean flag - based on a custom criteria - in which we proxy if the application is using previously completed (and still valid) preapproved cupo in this application"
+      - name: original_product
+        description: "Original application product (only originations v2) - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_category
+        description: "Processed application product category - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_subcategory
+        description: "Processed application product sub-category - Business logic from gold.bl_application_product_co/br"
+      - name: debug_application_datetime_local
+        description: "Debug field with the original application_datetime_local, to understand if the source has non-null data for that field. Which is taken of the ocurred_on of the ApplicationCreated event"
+      - name: ally_slugs_string
+        description: "suborders_ally_slug_array converted to a string under custom formatting"
+      - name: ally_clusters_string
+        description: "suborders_ally_cluster_array converted to a string under custom formatting"
+      - name: ally_brands_string
+        description: "suborders_ally_brand_array converted to a string under custom formatting"
+      - name: ally_verticals_string
+        description: "suborders_ally_vertical_array converted to a string under custom formatting"
+      - name: account_kam_names_string
+        description: "suborders_account_kam_name_array converted to a string under custom formatting"
+      - name: is_addishop_referral_with_default
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc). If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: is_addishop_referral_paid_with_default
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee. If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: application_process_baseline_id
+        description: "UUID representing the application_process_baseline_id which is one of the two key concepts to build an application process id"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: stg_funnel_step2_application_process_representation_co
+    description: "Staging restricted-access table. Step 2 of the processing for funnel data at the application process level. Represents the post-processed data with the already calculated additional variables to build the application process ids (this is the target granularity of the table)"
+    columns:
+      - name: application_process_id
+        description: "UUUD of the application process"
+      - name: application_process_baseline_id
+        description: "UUID representing the application_process_baseline_id which is one of the two key concepts to build an application process id"
+      - name: custom_day_origination_ordinal
+        description: "Numerical integer representing the way each application_id within an application_process_baseline_id should be grouped when building the application_process_id. This is one of the two key concepts to build an application process id"
+      - name: client_id
+        description: "UUID of the client"
+      - name: ally_slugs_string
+        description: "suborders_ally_slug_array converted to a string under custom formatting"
+      - name: synthetic_journey_name
+        description: "Modified version of the original events applications journey name"
+      - name: synthetic_ocurred_on_date_local
+        description: "Custom date at the local timezone (COT) based on custom logic on top of: approval_ocurred_on_local & minimum_ocurred_on_local"
+      - name: synthetic_ocurred_on_local
+        description: "Custom timestamp at the local timezone (COT) based on custom logic on top of: approval_ocurred_on_local & minimum_ocurred_on_local"
+      - name: max_synthetic_ocurred_on_local
+        description: "Maximum of the applications synthetic_ocurred_on_local"
+      - name: min_synthetic_ocurred_on_local
+        description: "Minimum of the applications synthetic_ocurred_on_local"
+      - name: has_reached_approval
+        description: "Boolean flag representing if the entity (application, application process, etc) is considered as approved"
+      - name: is_using_preapproval_proxy
+        description: "Custom boolean flag - based on a custom criteria - in which we proxy if the application is using previously completed (and still valid) preapproved cupo in this application"
+      - name: journey_homolog
+        description: "Homolog of the synthetic_journey_name"
+      - name: term
+        description: "Term of the loan"
+      - name: ally_clusters_string
+        description: "suborders_ally_slug_array converted to a string under custom formatting"
+      - name: ally_brands_string
+        description: "suborders_ally_cluster_array converted to a string under custom formatting"
+      - name: ally_verticals_string
+        description: "suborders_ally_brand_array converted to a string under custom formatting"
+      - name: account_kam_names_string
+        description: "suborders_account_kam_name_array converted to a string under custom formatting"
+      - name: client_type
+        description: "Type of the client (Prospect or Returning Client)"
+      - name: channel
+        description: "Application channel"
+      - name: synthetic_product_category
+        description: "Processed application product category - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_subcategory
+        description: "Processed application product sub-category - Business logic from gold.bl_application_product_co/br"
+      - name: is_addishop_referral_with_default
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc). If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: is_addishop_referral_paid_with_default
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee. If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: debug_num_rows
+        description: "Debug integer representing the amount of rows within a single application_process_id"
+      - name: debug_num_unique_applications
+        description: "Debug integer representing the amount of unique application_ids within a single application_process_id"
+      - name: debug_sum_has_reached_approval
+        description: "Debug integer: sum of the flag (as integer) has_reached_approval of individual rows within an application_process_id"
+      - name: debug_application_ids_array
+        description: "Debug struct: contains the list of all application_ids within the application_process_id, providing detail on a lot of fields relative to them"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt."

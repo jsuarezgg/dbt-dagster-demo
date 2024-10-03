@@ -56,8 +56,8 @@ app_count AS (
         CASE
             WHEN from_utc_timestamp(a.application_date, "{{time_zone}}") < fld.first_origination_date OR fld.first_origination_date IS NULL THEN 'PROSPECT' ELSE 'CLIENT'
         END AS client_type
-    FROM {{ ref('f_applications_co') }} a
-    left join {{ ref('f_originations_bnpl_co') }} orig
+    FROM {{ source('silver_live', 'f_applications_co') }} a
+    left join {{ source('silver_live', 'f_originations_bnpl_co') }} orig
       on a.application_id = orig.application_id
     LEFT JOIN first_loan_data fld 
         ON a.client_id = fld.client_id

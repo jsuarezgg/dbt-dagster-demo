@@ -15,6 +15,6 @@ select
     , max(personId_lastName) as prospect_last_name
     , max(personId_secondLastName) as prospect_snd_last_name
     --, 1 rn
-from {{ ref('f_kyc_bureau_personal_info_co') }}
+from {{ source('silver_live', 'f_kyc_bureau_personal_info_co') }}
 where personId_firstName is not null
 group by 1

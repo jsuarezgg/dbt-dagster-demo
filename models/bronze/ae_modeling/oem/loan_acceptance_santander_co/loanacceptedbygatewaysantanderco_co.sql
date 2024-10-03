@@ -33,6 +33,7 @@ SELECT
     json_tmp.application.product AS product,
     json_tmp.loan.approvedAmount as approved_amount,
     json_tmp.loan.guarantee.totalGuaranteeRate as guarantee_rate,
+    CAST(json_tmp.loan.guarantee.totalGuarantee AS DOUBLE) AS guarantee_amount,
     json_tmp.loan.effectiveAnnualRate as effective_annual_rate,
     coalesce(cast(json_tmp.creditCheck.lowBalanceLoanV2 as boolean),
              cast(json_tmp.creditCheck.lowBalanceLoan as boolean)) as lbl,

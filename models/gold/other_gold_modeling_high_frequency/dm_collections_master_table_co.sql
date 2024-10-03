@@ -52,9 +52,10 @@ DISTINCT (ls.client_id)
 ,SUM(ls.min_payment) AS min_payment
 ,MIN(ls.first_payment_date)::date AS first_first_payment_date
 FROM {{ ref('dm_loan_status_co') }} ls
-LEFT JOIN {{ ref('risk_master_table_co') }} rmt ON rmt.loan_id=ls.loan_id
+LEFT JOIN {{ source('gold','risk_master_table_co') }} rmt ON rmt.loan_id=ls.loan_id
+LEFT JOIN {{ source('silver_live', 'f_fincore_loans_co') }} fc ON ls.loan_id=fc.loan_id
 WHERE ls.cancellation_reason IS NULL
-AND ls.is_fully_paid IS FALSE
+AND (ls.is_fully_paid IS FALSE or (ls.is_fully_paid is TRUE and fc.delinquency_balance>5000))
 GROUP BY 1
 )
 
@@ -63,7 +64,7 @@ GROUP BY 1
 client_id,
 MAX(fp.payment_date)::date AS last_payment_date,
 (datediff(current_date, MAX(fp.payment_date::date))) <= 3 AS 3_days_payment
-FROM addi_prod.silver.f_fincore_payments_co fp
+FROM {{ source('silver_live', 'f_fincore_payments_co') }} fp
 GROUP BY 1
 )
 
@@ -182,15 +183,15 @@ WHEN isnull(fp.paid_amount) THEN 0
 ELSE fp.paid_amount
 END as paid_amount,
 from_utc_timestamp(end_date,'America/Bogota') end_date,
-max(cpp.ocurred_on_date) OVER (partition by cpp.client_id,cpp.start_date) as max_ocurred_on,
+max(CAST(cpp.last_event_ocurred_on_processed AS DATE)) OVER (partition by cpp.client_id,cpp.start_date) as max_ocurred_on,
 max(cpp.start_date) OVER (partition by cpp.client_id) as max_start_date,
 CASE
 WHEN from_utc_timestamp(cpp.end_date,'America/Bogota')>=current_date() THEN TRUE
 ELSE FALSE
 END as active_promise,
-cpp.ocurred_on_date ocurred_on
-FROM {{ ref('f_client_payment_promises_co') }} cpp
-LEFT JOIN addi_prod.silver.f_fincore_payments_co fp
+CAST(cpp.last_event_ocurred_on_processed AS DATE) AS ocurred_on
+FROM {{ source('silver_live', 'f_client_payment_promises_co') }} cpp
+LEFT JOIN {{ source('silver_live', 'f_fincore_payments_co') }} fp
 ON cpp.client_payment_id=fp.payment_id
 WHERE NOT(from_utc_timestamp(end_date,'America/Bogota') < current_date() AND state='PENDING')),
 
@@ -218,7 +219,7 @@ WHERE NOT(from_utc_timestamp(end_date,'America/Bogota') < current_date() AND sta
 -- END
 -- AS active_promise
 -- FROM {{ source('cur','payment_promises') }} pp
--- LEFT JOIN addi_prod.silver.f_fincore_payments_co fp
+-- LEFT JOIN {{ source('silver_live', 'f_fincore_payments_co') }} fp
 -- ON element_at(pp.payments_ids,1)=fp.payment_id
 -- LEFT JOIN query8 q8
 --     ON pp.client_id = q8.client_id
@@ -275,10 +276,10 @@ SELECT fmt.*
     ELSE 0
     END
     AS idv_bypassed_or
-FROM {{ ref('fraud_master_table_co') }} fmt
-LEFT JOIN {{ ref('risk_master_table_co') }} mt
+FROM {{ source('gold','fraud_master_table_co') }} fmt
+LEFT JOIN {{ source('gold','risk_master_table_co') }} mt
     ON fmt.application_id = mt.application_id
-LEFT JOIN addi_prod.silver.f_fincore_loans_co fl
+LEFT JOIN {{ source('silver_live', 'f_fincore_loans_co') }} fl
 		ON fmt.loan_id=fl.loan_id
 ),
 
@@ -328,7 +329,7 @@ GROUP BY q15.client_id),
 client_exclusion_list as (
 SELECT client_id,
        reason
-FROM {{ ref('f_client_exclusions_co_logs') }}
+FROM {{ source('silver_live', 'f_client_exclusions_co_logs') }}
 QUALIFY ROW_NUMBER() OVER(PARTITION BY client_id ORDER BY ocurred_on DESC) = 1
 )
 

@@ -9,7 +9,7 @@
 
 WITH
 dm_originations_detailed_by_suborder AS (
-    -- V2: Context - Carlos
+    -- V2: Context - Carlos.
     SELECT *
     FROM {{ ref('dm_originations_detailed_by_suborder') }}
 )
@@ -25,36 +25,6 @@ agg_shop_ally_metrics_co_filtered AS (
     SELECT DISTINCT ally_slug
     FROM {{ ref('agg_shop_ally_metrics_co') }}
     WHERE shop_state IN ('OPT-IN','EXISTING') AND `date` < DATE_TRUNC('year', CURRENT_DATE() - INTERVAL '1 day')
-)
-,
-funding_manual_metrics AS (
-    -- V1: Context - Alexis & Julio
-    SELECT
-        a.country_code,
-        DATE_TRUNC('month', a.date_) AS period,
-        CASE
-            WHEN a.metric ILIKE ('%CUPO%') THEN 'CUPO'
-            WHEN a.metric ILIKE ('%GRANDE%') THEN 'GRANDE'
-            WHEN a.metric ILIKE ('%INTRO%') THEN 'INTRO'
-        END AS synthetic_product_category,
-        MAX(a.value_) FILTER (WHERE a.metric IN ('CUPO CTS + U/W', 'INTRO CTS + U/W', 'GRANDE CTS + U/W')) AS cts_uw,
-        MAX(a.value_) FILTER (WHERE a.metric IN ('CoF INTRO', 'CoF CUPO', 'CoF GRANDE')) AS cof,
-        MAX(b.total_cts_uw) AS total_cts_uw,
-        MAX(b.total_cof) AS total_cof
-    FROM {{ source('gold', 'agg_addi_management_manual_metrics_inputs') }} AS a
-    LEFT JOIN (
-        SELECT
-            country_code,
-            DATE_TRUNC('month', date_) AS period,
-            MAX(value_) FILTER (WHERE metric = 'TOTAL CTS + U/W') AS total_cts_uw,
-            MAX(value_) FILTER (WHERE metric = 'CoF TOTAL') AS total_cof
-        FROM {{ source('gold', 'agg_addi_management_manual_metrics_inputs') }}
-        WHERE metric IN ('TOTAL CTS + U/W', 'CoF TOTAL')
-        GROUP BY 1,2
-    ) AS b ON b.period = DATE_TRUNC('month', a.date_)
-           AND b.country_code = a.country_code
-    WHERE a.metric IN ( 'CUPO CTS + U/W', 'INTRO CTS + U/W', 'GRANDE CTS + U/W', 'CoF INTRO', 'CoF CUPO', 'CoF GRANDE')
-    GROUP BY 1,2,3
 )
 , funding_manual_metrics_txn AS (
     -- V1: Context - Alexis & Julio
@@ -96,6 +66,7 @@ originations_baseline AS (
         o.ally_vertical,
         o.ally_brand,
         o.ally_cluster,
+        o.account_kam_name,
         o.guarantee_provider_with_default AS guarantee_provider,
         o.segment,
         o.santander_origination AS is_santander,
@@ -161,7 +132,7 @@ originations_baseline AS (
                                                           AND uw.metric_ = 'UW'
     LEFT JOIN funding_manual_metrics_txn AS cof_grande ON o.country_code = cof_grande.country_code
                                                           AND DATE_TRUNC('month', o.origination_date_local)::DATE = cof_grande.date_
-                                                          AND ROUND(o.term * 0.9, 1) = ROUND(cof_grande.term_, 1)
+                                                          AND ROUND(o.term * 0.95, 1) = ROUND(cof_grande.term_, 1)
                                                           AND o.synthetic_product_category = cof_grande.scope_
                                                           AND cof_grande.metric_ = 'COF'
                                                           AND cof_grande.scope_= 'GRANDE'
@@ -204,6 +175,7 @@ origination_date_metrics AS (
         ally_vertical,
         ally_brand,
         ally_cluster,
+        account_kam_name,
         guarantee_provider,
         segment,
         is_santander,
@@ -240,7 +212,6 @@ origination_date_metrics AS (
         SUM(expected_final_losses) AS expected_final_losses,
         MAX(is_first_slug_origination) AS is_first_slug_origination,
         MAX(is_existing_shop_ally_before_current_year) AS is_existing_shop_ally_before_current_year,
-        --  Context: V1 - Julio & Alexis - calculations for manual inputs at the application-origination level
         --           V2 - Carlos - attribution for each suborder. The calculations below: `cost_of_funding_usd`,
         --                `numerator_weighted_wal_usd` & `numerator_weighted_term_usd` do not require attribution
         --                as they include `gmv` in the calculation, and it already considers the attribution factor
@@ -258,7 +229,7 @@ origination_date_metrics AS (
         NULL AS dq31_at_31_opb
     FROM  originations_baseline
     WHERE origination_date_local < CURRENT_DATE()
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22
 )
 ,
 losses_date_metrics AS (
@@ -281,6 +252,7 @@ losses_date_metrics AS (
         ally_vertical,
         ally_brand,
         ally_cluster,
+        account_kam_name,
         guarantee_provider,
         segment,
         is_santander,
@@ -330,7 +302,7 @@ losses_date_metrics AS (
     FROM  originations_baseline
     WHERE   dq31_at_31_date::DATE >= DATE_TRUNC('month', CURRENT_DATE()) - INTERVAL '19 month'
         AND dq31_at_31_date::DATE < CURRENT_DATE()
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22
 )
 ,
 low_granularity_originations_and_losses_results AS (
@@ -366,6 +338,7 @@ low_granularity_results AS (
         o.ally_vertical,
         o.ally_brand,
         o.ally_cluster,
+        o.account_kam_name,
         o.guarantee_provider,
         o.segment,
         o.is_santander,
@@ -405,10 +378,6 @@ low_granularity_results AS (
         MAX(o.is_existing_shop_ally_before_current_year) AS is_existing_shop_ally_before_current_year,
         SUM(o.dq31_at_31_upb) AS dq31_at_31_upb,
         SUM(o.dq31_at_31_opb) AS dq31_at_31_opb,
-        MAX(fmm.cts_uw) AS cts_uw,
-        MAX(fmm.total_cts_uw) AS total_cts_uw,
-        MAX(fmm.cof) AS cof,
-        MAX(fmm.total_cof) AS total_cof,
         SUM(o.payment_cost_usd) AS payment_cost_usd,
         SUM(o.cost_to_serve_usd) AS cost_to_serve_usd,
         SUM(o.underwriting_cost_usd) AS underwriting_cost_usd,
@@ -422,10 +391,7 @@ low_granularity_results AS (
         ANY_VALUE(NULL) AS custom_application_suborder_pairing_id,
         ANY_VALUE(NULL) AS loan_id
     FROM      low_granularity_originations_and_losses_results AS o
-    LEFT JOIN funding_manual_metrics                          AS fmm ON  fmm.country_code = o.country_code
-                                                                     AND fmm.period = DATE_TRUNC('month',o.period_date)
-                                                                     AND fmm.synthetic_product_category = o.synthetic_product_category
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
 )
 ,
 high_granularity_rows AS (
@@ -452,6 +418,7 @@ high_granularity_rows AS (
         ally_vertical,
         ally_brand,
         ally_cluster,
+        account_kam_name,
         guarantee_provider,
         segment,
         is_santander,
@@ -491,10 +458,6 @@ high_granularity_rows AS (
         is_existing_shop_ally_before_current_year,
         NULL AS dq31_at_31_upb,
         NULL AS dq31_at_31_opb,
-        NULL AS cts_uw,
-        NULL AS total_cts_uw,
-        NULL AS cof,
-        NULL AS total_cof,
         NULL AS payment_cost_usd,
         NULL AS cost_to_serve_usd,
         NULL AS underwriting_cost_usd,

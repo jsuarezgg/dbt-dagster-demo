@@ -29,22 +29,22 @@ syc_refinancing_instructions AS (
 ),
 client_loans AS (
 
-    SELECT * FROM addi_prod.silver.f_fincore_loans_co
+    SELECT * FROM {{ source('silver_live', 'f_fincore_loans_co') }}
 
 ),
 dynamic_funnel_loan_proposals AS (
 
-    SELECT * FROM {{ ref('f_loan_proposals_co') }}
+    SELECT * FROM {{ source('silver_live', 'f_loan_proposals_co') }}
 
 ),
 originations AS (
 
-    SELECT * FROM {{ ref('f_originations_bnpl_co') }}
+    SELECT * FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
 
 ),
 applications AS (
 
-    SELECT * FROM {{ ref('f_applications_co') }}
+    SELECT * FROM {{ source('silver_live', 'f_applications_co') }}
 
 ),
 allies AS (

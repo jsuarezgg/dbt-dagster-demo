@@ -14,7 +14,7 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
@@ -29,7 +29,7 @@ target_applications_br AS (
 {%- endif %}
 f_originations_bnpl_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -37,7 +37,7 @@ f_originations_bnpl_co AS (
 ,
 f_originations_bnpn_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpn_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpn_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -61,7 +61,7 @@ f_originations_bnpn_br AS (
 ,
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -77,7 +77,7 @@ f_applications_br AS (
 ,
 f_loan_proposals_co AS (
     SELECT *
-    FROM {{ ref('f_loan_proposals_co') }}
+    FROM {{ source('silver_live', 'f_loan_proposals_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -93,7 +93,7 @@ f_loan_proposals_br AS (
 ,
 f_underwriting_fraud_stage_co AS (
     SELECT *
-    FROM {{ ref('f_underwriting_fraud_stage_co') }}
+    FROM {{ source('silver_live', 'f_underwriting_fraud_stage_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -109,7 +109,7 @@ f_underwriting_fraud_stage_br AS (
 ,
 f_allies_product_policies_co AS (
     SELECT *
-    FROM {{ ref('f_allies_product_policies_co') }}
+    FROM {{ source('silver_live', 'f_allies_product_policies_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -117,10 +117,22 @@ f_allies_product_policies_co AS (
 ,
 f_approval_loans_to_refinance_co AS (
     SELECT *
-    FROM {{ ref('f_approval_loans_to_refinance_co') }}
+    FROM {{ source('silver_live', 'f_approval_loans_to_refinance_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
+)
+,
+f_applications_discounts_co AS (
+    SELECT
+        application_id,
+        round(sum(discount_percentage), 5) AS total_discount_percentage,
+        round(sum(discount_amount), 5) AS total_discount_amount
+    FROM {{ source('silver_live', 'f_applications_discounts_co') }}
+    {%- if is_incremental() %}
+    WHERE application_id IN (SELECT application_id FROM target_applications_co)
+    {%- endif -%}
+    GROUP BY 1
 )
 ,
 d_fx_rate AS (
@@ -261,6 +273,8 @@ grande_true_up_losses AS (
     INNER JOIN f_originations_bnpl_co AS o ON o.loan_id = gtulf.loan_id
     INNER JOIN f_applications_co      AS a ON a.application_id = o.application_id
 )
+--Context about change in risk tables to fix Expected losses using the first value 
+-- for co_factor and prediction_31_31_unit for each origination : https://addico.slack.com/archives/C02NFAZL3K7/p1718821089136749
 ,
 expected_losses_co AS (
     (
@@ -270,7 +284,7 @@ expected_losses_co AS (
         prediction_31_31_unit,
         NULL AS pred_co_bal,
         FALSE AS is_grande_risk_product_category
-    FROM {{ source('risk', 'prospect_loss_forecast') }}
+    FROM {{ source('risk', 'prospect_loss_forecast_origination') }} -- risk.prospect_loss_forecast was the previous table with the last value for each origination
     )
     UNION ALL
     (
@@ -280,7 +294,7 @@ expected_losses_co AS (
         prediction_31_31_unit_adjusted AS prediction_31_31_unit,
         NULL AS pred_co_bal,
         FALSE AS is_grande_risk_product_category
-    FROM {{ source('risk', 'client_loss_forecast') }}
+    FROM {{ source('risk', 'client_loss_forecast_origination') }} -- risk.client_loss_forecast was the previous table with the last value for each origination
     )
     UNION ALL
     (
@@ -307,7 +321,7 @@ f_applications_backfill AS (
         FIRST_VALUE(client_id,TRUE) AS client_id,
         FIRST_VALUE(client_type,TRUE) AS client_type,
         FIRST_VALUE(journey_name,TRUE) AS journey_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {% endif %}
@@ -410,6 +424,7 @@ f_originations AS (
         o.approved_amount,
         COALESCE(o.custom_is_santander_originated, FALSE) AS custom_is_santander_originated,
         o.guarantee_rate::DOUBLE AS guarantee_rate,
+        o.guarantee_amount,
         CASE WHEN o.guarantee_provider IS NOT NULL THEN o.guarantee_provider
              WHEN o.guarantee_provider IS NULL AND o.guarantee_rate > 0.0 THEN 'FGA'
              ELSE NULL END AS guarantee_provider_with_default,
@@ -447,6 +462,7 @@ f_originations AS (
         o.payment_amount AS approved_amount,
         FALSE AS custom_is_santander_originated,
         NULL::DOUBLE AS guarantee_rate,
+        NULL:DOUBLE AS guarantee_amount,
         NULL:STRING AS guarantee_provider_with_default,
         NULL::BOOLEAN AS lbl,
         o.last_event_ocurred_on_processed AS origination_date,
@@ -478,6 +494,7 @@ f_originations AS (
         o.approved_amount,
         FALSE AS custom_is_santander_originated,
         NULL::DOUBLE AS guarantee_rate,
+        NULL:DOUBLE AS guarantee_amount,
         NULL:STRING AS guarantee_provider_with_default,
         o.lbl,
         o.origination_date,
@@ -510,6 +527,7 @@ f_originations AS (
         o.requested_amount AS approved_amount,
         FALSE AS custom_is_santander_originated,
         NULL::DOUBLE AS guarantee_rate,
+        NULL:DOUBLE AS guarantee_amount,
         NULL:STRING AS guarantee_provider_with_default,
         NULL::BOOLEAN AS lbl,
         o.origination_date,
@@ -548,18 +566,25 @@ dm_originations_baseline AS (
             (   COALESCE(synthetic_total_interest_post_losses,0)
                 + COALESCE(collection_fee_income_amount,0)
             )::DOUBLE AS consumer_revenue,
-            expected_final_losses_amount - synthetic_guarantee_expected_loss_recovery_amount AS expected_final_losses
+            expected_final_losses_amount - synthetic_guarantee_expected_loss_recovery_amount AS expected_final_losses,
+            -- Braze custom calculation on total_income that uses actual interest and no the one adjusted by losses.
+            -- Workaround to the dependency on Risk+DS Losses tables (which update schedule is non-optimal for braze purchase events)
+            -- Context: https://addico.slack.com/archives/C0759U6G6VC/p1722528977376299?thread_ts=1722458800.432369&cid=C0759U6G6VC
+            ( COALESCE(synthetic_origination_marketplace_purchase_fee_amount,0) + COALESCE(synthetic_lead_gen_fee_amount,0)
+                + COALESCE(synthetic_ally_mdf_amount,0) + COALESCE(synthetic_total_interest_non_santander,0)
+                + COALESCE(collection_fee_income_amount,0)
+            )::DOUBLE AS debug_for_braze_proxy_total_revenue
         FROM
         ( --STEP 3--
             SELECT
                 *, --To avoid redundancy, only new fields
                 (CASE
-                    WHEN guarantee_provider_with_default = 'FNG' THEN synthetic_guarantee_amount * (1 - synthetic_expected_loss_rate/2) 
-                    WHEN synthetic_product_category = 'GRANDE' THEN synthetic_guarantee_amount * (1/1.19) * 0.9 * (1 - synthetic_expected_loss_rate/2)
-                    ELSE synthetic_guarantee_amount * (1/1.19) * 0.9 * (1 - synthetic_expected_loss_rate)
+                    WHEN guarantee_provider_with_default = 'FNG' THEN guarantee_amount * (1 - synthetic_expected_loss_rate/2) 
+                    WHEN synthetic_product_category = 'GRANDE' THEN guarantee_amount * (1/1.19) * 0.9 * (1 - synthetic_expected_loss_rate/2)
+                    ELSE guarantee_amount * (1/1.19) * 0.9 * (1 - synthetic_expected_loss_rate)
                 END)::DOUBLE AS synthetic_guarantee_amount_post_losses_tax_fee,
                 (CASE
-                    WHEN synthetic_product_category = 'GRANDE' THEN synthetic_total_interest_non_santander * (1 - synthetic_expected_loss_rate/2)
+                    WHEN synthetic_product_category = 'GRANDE' THEN synthetic_total_interest_non_santander * (1 - synthetic_expected_loss_rate/2) * 0.95 --(prepayment adjustement = 5%)
                     ELSE synthetic_total_interest_non_santander * (1 - synthetic_expected_loss_rate)
                 END)::DOUBLE AS synthetic_total_interest_post_losses,
                 (CASE
@@ -571,7 +596,6 @@ dm_originations_baseline AS (
                     *, --To avoid redundancy, only new fields
                     COALESCE(synthetic_origination_origination_mdf, ally_mdf)::DOUBLE AS synthetic_ally_mdf, -- From pre-calculation in marketplace, else normal source
                     COALESCE(synthetic_origination_origination_mdf_amount, ally_mdf_amount)::DOUBLE AS synthetic_ally_mdf_amount, -- From pre-calculation in marketplace, else normal source
-                    (approved_amount * COALESCE(guarantee_rate,0))::DOUBLE AS synthetic_guarantee_amount,
                     (synthetic_requested_amount_non_santander * COALESCE(lead_gen_fee_rate,0))::DOUBLE AS synthetic_lead_gen_fee_amount,
                     --synthetic_total_interest_post_losses -- BUILT ON STEP 3 due to needing `synthetic_expected_loss_rate`
                     (CASE
@@ -593,6 +617,7 @@ dm_originations_baseline AS (
                         o.approved_amount,
                         o.custom_is_santander_originated,
                         o.guarantee_rate,
+                        o.guarantee_amount,
                         o.guarantee_provider_with_default,
                         o.lbl,
                         o.origination_date,
@@ -618,6 +643,9 @@ dm_originations_baseline AS (
                         ap.synthetic_product_category,
                         a.synthetic_requested_amount,
                         COALESCE(asl.ally_cluster,'KA') AS ally_cluster_with_default,
+                        asl.account_kam_name,
+                        ad.total_discount_percentage,
+                        ad.total_discount_amount,
                         (CASE
                             WHEN COALESCE(elco.is_grande_risk_product_category,FALSE) = FALSE THEN (elco.prediction_31_31_unit * o.approved_amount) * elco.co_factor
                             WHEN COALESCE(elco.is_grande_risk_product_category,FALSE) = TRUE THEN elco.pred_co_bal
@@ -643,9 +671,10 @@ dm_originations_baseline AS (
                             ELSE NULL END AS synthetic_fng_cost_amount 
                     FROM      f_originations                                           AS o 
                     LEFT JOIN f_applications                                           AS a        ON o.application_id = a.application_id
+                    LEFT JOIN f_applications_discounts_co                              AS ad       ON o.application_id = ad.application_id
                     LEFT JOIN bl_application_product                                   AS ap       ON o.application_id = ap.application_id
                     LEFT JOIN bl_originations_marketplace_suborders_to_originations_co AS mkplc_bl ON o.application_id = mkplc_bl.application_id
-                    LEFT JOIN bl_application_addi_shop_co                                 AS oas      ON o.application_id = oas.application_id AND a.channel != 'ADDI_MARKETPLACE' --FORCE MKTPLC OUT
+                    LEFT JOIN bl_application_addi_shop_co                              AS oas      ON o.application_id = oas.application_id AND a.channel != 'ADDI_MARKETPLACE' --FORCE MKTPLC OUT
                     LEFT JOIN bl_ally_brand_ally_slug_status                           AS asl      ON o.ally_slug      = asl.ally_slug AND asl.country_code = o.country_code
                     LEFT JOIN bl_originations_payment_date_co                          AS opd      ON o.loan_id        = opd.loan_id
                     LEFT JOIN expected_losses_co                                       AS elco     ON o.loan_id        = elco.loan_id
@@ -697,7 +726,7 @@ SELECT
     o.guarantee_rate,
     o.guarantee_provider_with_default,
     o.synthetic_fng_cost_amount AS fng_cost_amount,
-    o.synthetic_guarantee_amount AS guarantee_amount_charged_at_checkout,
+    o.guarantee_amount AS guarantee_amount_charged_at_checkout,
     o.synthetic_guarantee_amount_post_losses_tax_fee AS guarantee_amount,
     o.has_fga_flag,
     o.interest_rate,
@@ -716,6 +745,7 @@ SELECT
     asl.ally_vertical,
     asl.ally_brand,
     o.ally_cluster_with_default AS ally_cluster,
+    o.account_kam_name,
     -- F. LOAN PERFORMANCE DATA + LOSSES FIELDS
     o.approved_amount_filtered_for_losses,
     o.synthetic_guarantee_expected_loss_recovery_amount AS guarantee_expected_loss_recovery_amount,
@@ -740,6 +770,9 @@ SELECT
     -- I. OTHER FIELDS
     fr.price AS fx_rate,
     o.client_segment_br AS segment,
+    o.total_discount_percentage,
+    o.total_discount_amount,
+    o.debug_for_braze_proxy_total_revenue,
     -- J. DATA PLATFORM DATA
     NOW() AS ingested_at,
     to_timestamp('{{ var("execution_date") }}') AS updated_at

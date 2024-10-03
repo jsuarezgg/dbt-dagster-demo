@@ -18,16 +18,16 @@ WITH prev_phones_emails AS (
         coalesce(idv.ip_address, iov.iovation_data_details_realIp_address) as ip_address,
         sum(CASE WHEN a.application_cellphone != a2.application_cellphone AND a.application_cellphone IS NOT NULL AND a2.application_cellphone IS NOT NULL THEN 1 END) AS diff_past_cellphones,
         sum(CASE WHEN lower(a.application_email) != lower(a2.application_email) AND a.application_email IS NOT NULL AND a2.application_email IS NOT NULL THEN 1 END) AS diff_past_emails
-     FROM {{ ref('f_pii_applications_co') }} a
-     LEFT JOIN {{ ref('f_pii_applications_co') }} a2 
+     FROM {{ source('silver_live', 'f_pii_applications_co') }} a
+     LEFT JOIN {{ source('silver_live', 'f_pii_applications_co') }} a2 
          ON a.client_id = a2.client_id
          AND a.application_date > a2.application_date
          AND (a.application_cellphone != a2.application_cellphone OR lower(a.application_email) != lower(a2.application_email))
-     left join {{ ref('f_idv_stage_co') }} idv
+     left join {{ source('silver_live', 'f_idv_stage_co') }} idv
         on a.application_id = idv.application_id
-     left join {{ ref('f_kyc_iovation_v1v2_co') }} iov
+     left join {{ source('silver_live', 'f_kyc_iovation_v1v2_co') }} iov
         on a.application_id = iov.application_id
-     LEFT JOIN {{ ref('f_originations_bnpl_co') }} orig
+     LEFT JOIN {{ source('silver_live', 'f_originations_bnpl_co') }} orig
          ON a.application_id = orig.application_id
      GROUP BY 1,2,3,4,5,6,7
 )

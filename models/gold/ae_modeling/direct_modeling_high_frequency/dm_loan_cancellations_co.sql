@@ -23,12 +23,12 @@ f_syc_originations_co AS (
 ,
 f_originations_bnpl_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
 )
 ,
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
 )
 ,
 f_ally_management_transactions_co AS (
@@ -43,12 +43,12 @@ f_client_management_loan_cancellation_orders_co AS (
 ,
 f_loan_cancellations_v2_co AS (
     SELECT *
-    FROM {{ ref('f_loan_cancellations_v2_co') }}
+    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }}
 )
 ,
 f_loan_cancellations_v2_co_logs AS (
     SELECT *
-    FROM {{ ref('f_loan_cancellations_v2_co_logs') }}
+    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co_logs') }}
 )
 ,
 loan_cancellations_v2_logs_partial_cancellations_marketplace_allies AS (

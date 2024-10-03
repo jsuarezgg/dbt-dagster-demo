@@ -76,12 +76,15 @@ SELECT
     -- 'MAX VALUE' RESOLUTION VARIABLES
     MAX(has_reached_approval) AS has_reached_approval,
     MAX(is_using_preapproval_proxy) AS is_using_preapproval_proxy,
+    MAX(is_addishop_referral_with_default) AS is_addishop_referral_with_default,
+    MAX(is_addishop_referral_paid_with_default) AS is_addishop_referral_paid_with_default,
     -- 'FIRST VALUE' RESOLUTION VARIABLES
     FIRST_VALUE(journey_homolog, TRUE) AS journey_homolog,
     FIRST_VALUE(term, TRUE) AS term,
     FIRST_VALUE(ally_clusters_string, TRUE) AS ally_clusters_string,
     FIRST_VALUE(ally_brands_string, TRUE) AS ally_brands_string,
     FIRST_VALUE(ally_verticals_string, TRUE) AS ally_verticals_string,
+    FIRST_VALUE(account_kam_names_string, TRUE) AS account_kam_names_string,
     -- 'LAST NON-NULL VALUE' RESOLUTION VARIABLES - same approach as with silver events tables
     ELEMENT_AT(
         ARRAY_SORT(
@@ -124,7 +127,10 @@ SELECT
             ally_clusters_string,
             ally_brands_string,
             ally_verticals_string,
+            account_kam_names_string,
             channel,
+            is_addishop_referral_with_default,
+            is_addishop_referral_paid_with_default,
             synthetic_ocurred_on_local,
             minimum_ocurred_on_local,
             approval_ocurred_on_local,
@@ -144,12 +150,15 @@ SELECT
             ally_clusters_string,
             ally_brands_string,
             ally_verticals_string,
+            account_kam_names_string
             suborders_ally_slug_array,
             debug_application_datetime_local,
             synthetic_ocurred_on_local,
             minimum_ocurred_on_local,
             approval_ocurred_on_local,
             channel,
+            is_addishop_referral_with_default,
+            is_addishop_referral_paid_with_default,
             original_product,
             synthetic_product_subcategory,
             synthetic_product_category

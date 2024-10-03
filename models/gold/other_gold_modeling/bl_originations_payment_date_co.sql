@@ -57,7 +57,7 @@ WITH m_w_payment_dates AS (
         END) AS payment_date,
         COALESCE(p.report_term, ac.reportTerm) AS report_term,
         COALESCE(p.payment_term, ac.paymentTerm) AS payment_term
-  FROM {{ ref('f_originations_bnpl_co') }} ob
+  FROM {{ source('silver_live', 'f_originations_bnpl_co') }} ob
   LEFT JOIN {{ ref('f_ally_management_ally_payment_transaction_scheduled_payments_co') }} s ON  s.loan_id = ob.loan_id 
                                                                                                 AND s.type = 'PURCHASE'
                                                                                                 AND ((s.status = 'ASSIGNED' AND s.payment_id IS NOT NULL)

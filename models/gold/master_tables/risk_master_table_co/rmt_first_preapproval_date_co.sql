@@ -12,7 +12,7 @@
       a.client_id,
       min(a.application_date) as min_preapproval_date
     from
-      {{ ref('f_applications_co') }}  a
+      {{ source('silver_live', 'f_applications_co') }}  a
     where
       a.channel = 'PRE_APPROVAL'
       and a.custom_is_preapproval_completed

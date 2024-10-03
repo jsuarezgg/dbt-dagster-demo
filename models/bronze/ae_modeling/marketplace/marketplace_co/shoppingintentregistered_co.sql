@@ -10,8 +10,6 @@
     )
 }}
 
-
---raw_modeling.shoppingintentregistered_co
 SELECT
     -- MANDATORY FIELDS
     event_type AS event_name_original,
@@ -35,7 +33,7 @@ SELECT
     CAST(json_tmp.shoppingIntent.date as timestamp) AS shopping_intent_timestamp
     -- CUSTOM ATTRIBUTES
 -- DBT SOURCE REFERENCE
-FROM {{ source('raw_modeling', 'shoppingintentregistered_co') }}
+FROM addi_prod.raw_backend_events.transaction_attribution_event_shoppingintentregistered_co
 -- DBT INCREMENTAL SENTENCE
 {% if is_incremental() %}
     WHERE dt BETWEEN (to_date("{{ var('start_date') }}"- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date("{{ var('end_date') }}")

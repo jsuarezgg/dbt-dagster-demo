@@ -18,4 +18,4 @@ emailAge_status_value as em_status,
 emailAge_riskBand_value as em_risk_band,
 emailAge_lastVerificationDate as em_last_verification_date,
 emailAge_firstVerificationDate as em_first_verification_date
-from {{ ref('f_kyc_emailage_co') }};
+from {{ source('silver_live', 'f_kyc_emailage_co') }};

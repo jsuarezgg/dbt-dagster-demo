@@ -29,7 +29,7 @@ d_ally_management_allies_co AS (
 ),
 f_applications_co AS (
     SELECT * 
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE cast(application_date AS date) <= "{{ var('start_date') }}"::date
 ),
 d_syc_loan_status_co AS (
@@ -48,7 +48,7 @@ f_kyc_bureau_income_estimator_co AS (
   SELECT
     *
   FROM
-     {{ ref('f_kyc_bureau_income_estimator_co') }} 
+     {{ source('silver_live', 'f_kyc_bureau_income_estimator_co') }} 
 ),
 dm_daily_loan_status_co AS (
   SELECT
@@ -288,9 +288,9 @@ incomes AS (
     client_id,
     collect_list(income_estimatedIncome) as estimated_income
   FROM
-    silver.f_kyc_bureau_income_estimator_co
+    {{ source('silver_live', 'f_kyc_bureau_income_estimator_co') }}
   WHERE
-    ocurred_on_date :: date <= "{{ var('start_date') }}"::date
+    ocurred_on :: date <= "{{ var('start_date') }}"::date
   GROUP BY
     1
 ),

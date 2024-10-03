@@ -18,7 +18,7 @@ WITH tradelines_data AS (
     bureau_tradeline_branch AS tradeline_branch,
     bureau_tradeline_obligationType AS tradeline_obligation_type,
     bureau_tradeline_lastUpdateDate AS tradeline_obligation_status_last_update_date
-  FROM  {{ ref('f_kyc_bureau_credit_history_tradelines_co_logs') }}
+  FROM  {{ source('silver_live', 'f_kyc_bureau_credit_history_tradelines_co_logs') }}
 )
 ,
 tradelines_df AS (
@@ -43,7 +43,7 @@ footprints_df AS (
     collect_list(1) AS footprint_ciy,
     collect_list(1) AS footprint_date,
     collect_list(1) AS footprint_branch
-  FROM  {{ ref('f_kyc_bureau_credit_history_bank_accounts_co_logs') }}
+  FROM  {{ source('silver_live', 'f_kyc_bureau_credit_history_bank_accounts_co_logs') }}
   GROUP BY 1
 )
 ,
@@ -55,7 +55,7 @@ bank_accounts_data_df AS (
     collect_list(bureau_bank_account_obligationType) AS bank_obligation_type,
     collect_list(bureau_bank_account_originationDate) AS bank_origination_date,
     collect_list(bureau_bank_account_lastUpdateDate) AS bank_last_update_date
-  FROM  {{ ref('f_kyc_bureau_credit_history_bank_accounts_co_logs') }}
+  FROM  {{ source('silver_live', 'f_kyc_bureau_credit_history_bank_accounts_co_logs') }}
   GROUP BY 1
 )
 ,
@@ -76,7 +76,7 @@ income_estimator_data_df AS (
     collect_list(income_creditCardInitialApprovedAmount) AS credit_card_initial_approved_amount,
     collect_list(income_creditCardBalance) AS credit_card_balance,
     collect_list(income_creditCardInstallment) AS credit_card_installment
-  FROM  {{ ref('f_kyc_bureau_income_estimator_co') }}
+  FROM  {{ source('silver_live', 'f_kyc_bureau_income_estimator_co') }}
   GROUP BY 1
 )
 ,
@@ -85,7 +85,7 @@ income_validator_data_df AS (
     client_id,
     collect_list(income_healthEntity) AS health_entity,
     collect_list(income_pensionFundName) AS pension_fund_name
-  FROM  {{ ref('f_kyc_bureau_income_validator_co') }}
+  FROM  {{ source('silver_live', 'f_kyc_bureau_income_validator_co') }}
   GROUP BY 1
 )
 SELECT

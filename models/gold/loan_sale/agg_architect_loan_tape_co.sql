@@ -39,7 +39,11 @@ SELECT
     ls.total_interest_paid,
     ls.total_principal_paid,
     ls.unpaid_principal,
-    ls.usury_rate,
+    CASE
+        WHEN ls.low_balance_loan = FALSE THEN usr.official_usury_rate
+        WHEN ls.low_balance_loan = TRUE THEN usr.official_low_balance_usury_rate
+        ELSE NULL
+    END AS usury_rate,
     mk.suborder_attribution_weight_by_total_without_discount_amount * ls.approved_amount AS approved_amount_by_suborder,
     mk.suborder_attribution_weight_by_total_without_discount_amount * ls.current_installment_amount AS current_installment_amount_by_suborder,
     mk.suborder_attribution_weight_by_total_without_discount_amount * ls.unpaid_principal AS unpaid_principal_by_suborder,
@@ -63,6 +67,7 @@ LEFT JOIN {{ ref('d_ally_management_allies_co') }} am ON mk.suborder_ally_slug =
 LEFT JOIN {{ ref('fraud_master_table_co') }} fmt on ls.loan_id = fmt.loan_id
 LEFT JOIN {{ ref('f_client_management_credit_contracts_co') }} cc on ls.loan_id = cc.loan_id
 LEFT JOIN {{ ref('loan_ownership_co') }} lo on ls.loan_id = lo.loan_id
+LEFT JOIN {{ ref('d_syc_usury_rates_co') }} usr ON CURRENT_TIMESTAMP() BETWEEN usr.start_date AND usr.end_date
 WHERE lo.loan_ownership = 'PA_ADDI_ARCHITECT'
 
 )

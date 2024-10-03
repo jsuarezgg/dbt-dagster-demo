@@ -37,6 +37,7 @@ SELECT
     -- CUSTOM ATTRIBUTES
       -- Fill with your custom attributes
     CAST(1 AS TINYINT) AS loan_acceptance_passed,
+    json_tmp.loan.acceptance.otp AS otp_code,
     NAMED_STRUCT(
         'event_id', json_tmp.eventId,
         'event_type', json_tmp.originationEventType,

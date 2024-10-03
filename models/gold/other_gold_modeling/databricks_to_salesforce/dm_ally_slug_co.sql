@@ -41,7 +41,7 @@ apps_data AS (
     SELECT
         ally_slug,
         MIN(FROM_UTC_TIMESTAMP(ocurred_on, 'America/Bogota')::DATE) AS min_terms_and_conditions_acceptance_date_local
-    FROM {{ ref('f_ally_management_activation_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_ally_management_activation_events_co_logs') }}
     WHERE   ally_slug IS NOT NULL
         AND event_name = 'AllyTermsAndConditionsProcessAccepted'
     GROUP BY ally_slug

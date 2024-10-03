@@ -19,7 +19,7 @@ with apps as (
            ocurred_on,
            bureau_address_city as id_exp_city,
            row_number() over (partition by application_id order by ocurred_on desc) as rn
-    from {{ ref('f_kyc_bureau_contact_info_addresses_co_logs') }}
+    from {{ source('silver_live', 'f_kyc_bureau_contact_info_addresses_co_logs') }}
     where bureau_address_city is not null
 )
 
@@ -100,7 +100,7 @@ loan_cancellations AS (
             WHEN loan_cancellation_reason IN ('FRAUD','ALLY_BAD_PRACTICE','CLIENT_DEATH') THEN TRUE
         END AS non_refunded_cancellation,
         COALESCE(loan_cancellation_type, 'TOTAL') AS loan_cancellation_type
-    FROM {{ ref('f_loan_cancellations_v2_co') }}
+    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }}
     WHERE custom_loan_cancellation_status NOT ilike '%V2_CANCELLATION_ANNULLED%'
 
 ),
@@ -116,7 +116,7 @@ charge_off_report AS (
         loan_id,
         from_utc_timestamp(loan_cancellation_order_date, 'America/Bogota')::date AS charge_off_date,
         'NON_REFUNDED_CANCELLATION' AS charge_off_reason
-    FROM {{ ref('f_loan_cancellations_v2_co') }}
+    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }}
     WHERE loan_cancellation_reason IN ('FRAUD','ALLY_BAD_PRACTICE','CLIENT_DEATH')
         AND custom_loan_cancellation_status = 'V2_CANCELLATION_PROCESSED'
         AND loan_id NOT IN (SELECT loan_id FROM {{ ref('f_snc_charge_off_report_co') }} WHERE is_charge_off IS TRUE)
@@ -472,7 +472,7 @@ consolidated as (
     from apps
     left join {{ ref('rmt_metrics_co') }} met on apps.loan_id = met.loan_id
     left join {{ ref('bl_originations_marketplace_suborders_to_originations_co') }} mkplc_bl on apps.application_id = mkplc_bl.application_id
-    left join {{ ref('f_approval_loans_to_refinance_co') }} AS altr on apps.loan_id = altr.loan_id
+    left join {{ source('silver_live', 'f_approval_loans_to_refinance_co') }} AS altr on apps.loan_id = altr.loan_id
     left join grouping_buckets gb on apps.application_id = gb.application_id
     --<Additional Variables>--
     left join kyc_id_region_unified kyc_id on apps.application_id = kyc_id.application_id

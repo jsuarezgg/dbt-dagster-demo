@@ -66,8 +66,8 @@ co_allies AS (
 	SELECT 
 		t.application_id,
 		channel AS addishop_channel
-	FROM {{ ref('f_marketplace_transaction_attributable_co') }} t
-	LEFT JOIN  {{ ref('f_marketplace_shopping_intents_co') }} si
+	FROM {{ source('silver_live', 'f_marketplace_transaction_attributable_co') }} t
+	LEFT JOIN  {{ source('silver_live', 'f_marketplace_shopping_intents_co') }} si
 		ON t.shopping_intent_id = si.shopping_intent_id
 )
 , co_applications_non_marketplace AS (
@@ -76,6 +76,7 @@ co_allies AS (
 		app.ally_slug,
         app.store_slug,
 		app.application_date_local,
+		app.application_channel,
 		CASE WHEN o.application_id is not null THEN true
 		ELSE false
 		END as is_origination,
@@ -88,6 +89,7 @@ co_allies AS (
 		END as product_type,
 		app.last_event_type_prime,
 		app.ally_cluster,
+		app.account_kam_name,
 		sto.email AS store_user_email,
 		COALESCE(o.gmv,0) AS gmv,
 		0 AS marketplace_purchase_fee,
@@ -112,6 +114,7 @@ co_allies AS (
 		COALESCE(mktplc_a.suborder_ally_slug, mktplc_o.suborder_ally_slug, app.ally_slug) AS ally_slug,
 		COALESCE(mktplc_a.suborder_store_slug, mktplc_o.suborder_store_slug, app.store_slug) AS store_slug,
 		app.application_date_local,
+		app.application_channel,
 		CASE
 		    WHEN mktplc_o.custom_application_suborder_pairing_id IS NOT NULL THEN TRUE
 		    ELSE FALSE
@@ -126,6 +129,7 @@ co_allies AS (
 		END AS product_type,
 		app.last_event_type_prime,
 		app.ally_cluster,
+		app.account_kam_name,
 		sto.email AS store_user_email,
 		COALESCE(mktplc_o.synthetic_suborder_total_amount, 0) AS gmv,
 		mktplc_o.suborder_marketplace_purchase_fee AS marketplace_purchase_fee,
@@ -161,11 +165,13 @@ co_applications AS (
 		brand,
 		o.ally_slug,
 		o.ally_cluster,
+		o.account_kam_name,
         o.store_slug,
 		o.store_user_email,
 		o.last_event_type_prime,
 		o.client_type,
 		o.product_type,
+		o.application_channel,
 		store_name,
 		city_name,
 		o.channel,
@@ -200,7 +206,7 @@ co_applications AS (
 		ON o.store_slug = a.store_slug
 	LEFT JOIN co_addishop_originations 	t
 		ON o.application_id = t.application_id
-	GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13
+	GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 )
 
 , co_clicks AS (
@@ -217,7 +223,7 @@ co_applications AS (
 		COUNT(1) FILTER (WHERE s.channel IN ("{{sms_addishop_channels}}" )) AS sms_clicks,
 		COUNT(1) FILTER (WHERE s.channel IN ("{{instagram_addishop_channels}}" )) AS instagram_clicks,
 		COUNT(1) FILTER (WHERE s.channel IN ("{{whatsapp_addishop_channels}}" )) AS whatsapp_clicks
-	FROM {{ ref('f_marketplace_shopping_intents_co') }} s
+	FROM {{ source('silver_live', 'f_marketplace_shopping_intents_co') }} s
 	LEFT JOIN co_allies a
 		ON s.ally_slug = a.ally_slug
 	WHERE 1=1
@@ -270,6 +276,7 @@ LEFT JOIN co_clicks f
 		app.ally_slug,
         app.store_slug,
 		app.application_date_local,
+		app.application_channel,
 		CASE WHEN o.application_id is not null THEN true
 		ELSE false
 		END as is_origination,
@@ -304,11 +311,13 @@ LEFT JOIN co_clicks f
 		brand,
 		o.ally_slug,
 		o.ally_cluster,
+		NULL AS account_kam_name,
         o.store_slug,
 		o.store_user_email,
 		o.last_event_type_prime,
 		o.client_type,
 		o.product_type,
+		o.application_channel,
 		store_name,
 		city_name,
 		o.channel,
@@ -343,7 +352,7 @@ LEFT JOIN co_clicks f
 		ON o.ally_slug = a.ally_slug
 	LEFT JOIN br_addishop_originations 	t
 		ON o.application_id = t.application_id
-	GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13
+	GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 )
 , br_clicks AS (
 	SELECT

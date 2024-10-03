@@ -18,7 +18,7 @@ WITH applications_backfill_step_1 AS (
         FIRST_VALUE(fst.client_id) AS client_id,
         FIRST_VALUE(fst.client_type) AS client_type,
         FIRST_VALUE(fst.journey_name) AS journey_name
-    FROM {{ ref('f_origination_events_co_logs') }} fst
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }} fst
     {% if is_incremental() %}
         WHERE from_utc_timestamp(ocurred_on, 'America/Bogota') > (SELECT MAX(ocurred_on_timestamp) FROM {{ this }})
     {% endif %}
@@ -40,14 +40,14 @@ applications_backfill_step_2 AS (
         SELECT DISTINCT
             application_id,
             'PROSPECT_FINANCIA_SANTANDER_ADDI_CO' AS journey_name_synthetic
-        FROM {{ ref('f_origination_events_co_logs') }} fs2
+        FROM {{ source('silver_live', 'f_origination_events_co_logs') }} fs2
         WHERE journey_name = 'PROSPECT_FINANCIA_SANTANDER_CO'
             AND journey_stage_name IN ('underwriting-co')
             {% if is_incremental() %}
                 AND from_utc_timestamp(ocurred_on, 'America/Bogota') > (SELECT MAX(ocurred_on_timestamp) FROM {{ this }})
             {% endif %}
     ) AS synthetic ON fst.application_id = synthetic.application_id
-    LEFT JOIN {{ ref('f_applications_co') }} AS a ON fst.application_id = a.application_id
+    LEFT JOIN {{ source('silver_live', 'f_applications_co') }} AS a ON fst.application_id = a.application_id
 ),
 
 application_preapproval_co_filtered AS (
@@ -56,12 +56,12 @@ application_preapproval_co_filtered AS (
         a.application_date,
         a.preapproval_expiration_date,
         a.preapproval_amount
-    FROM {{ ref('f_applications_co') }} AS a
+    FROM {{ source('silver_live', 'f_applications_co') }} AS a
     INNER JOIN (
         SELECT
             application_id,
             row_number() over(partition by client_id, application_date::date order by application_date) as rn
-        FROM {{ ref('f_applications_co') }}
+        FROM {{ source('silver_live', 'f_applications_co') }}
         WHERE channel = 'PRE_APPROVAL'
           AND custom_is_preapproval_completed IS TRUE
     ) AS filtered_apps ON a.application_id = filtered_apps.application_id
@@ -72,7 +72,7 @@ preapproval_flagged_applications AS (
     SELECT DISTINCT
         a.application_id,
         1 AS flag_preapproval
-    FROM {{ ref('f_applications_co') }} AS a
+    FROM {{ source('silver_live', 'f_applications_co') }} AS a
     INNER JOIN application_preapproval_co_filtered AS pf
         ON a.client_id = pf.client_id AND a.application_date > pf.application_date AND a.application_date <= pf.preapproval_expiration_date
     LEFT JOIN applications_backfill_step_2 AS ab ON a.application_id = ab.application_id
@@ -84,7 +84,7 @@ preapproval_flagged_applications AS (
 terminated_applications AS (
     SELECT DISTINCT
         application_id
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     WHERE event_type in ('DECLINATION','ABANDONMENT','REJECTION','APPROVAL')
 ),
 
@@ -103,7 +103,7 @@ privacy_policy_screens AS (
         MAX(CASE WHEN event_name = 'ClientFirstLastNameConfirmedCO' THEN 1 ELSE 0 END) AS privacy_first_name_co_out,
         MAX(CASE WHEN event_name = 'ClientNationalIdentificationExpeditionDateConfirmedCO' THEN 1 ELSE 0 END) AS privacy_expiration_date_co_out,
         MAX(CASE WHEN event_name = 'PrivacyPolicyAcceptedCO' THEN 1 ELSE 0 END) AS privacy_accepted_co_out
-        FROM {{ ref('f_origination_events_co_logs') }}
+        FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
         WHERE journey_stage_name IN ('privacy-policy-co') AND ocurred_on > '2022-07-29 19:50:00'
             {% if is_incremental() %}
                 AND from_utc_timestamp(ocurred_on, 'America/Bogota') > (SELECT MAX(ocurred_on_timestamp) FROM {{ this }})
@@ -137,7 +137,7 @@ funnel_step_1 AS (
         END AS flag_out,
         MIN(from_utc_timestamp(fst.ocurred_on,'America/Bogota')) OVER (PARTITION BY fst.application_id) AS ocurred_on_creation,
         MAX(CASE WHEN fst.event_type = 'APPROVAL' THEN from_utc_timestamp(fst.ocurred_on,'America/Bogota') END) OVER (PARTITION BY fst.application_id) AS ocurred_on_approval
-    FROM {{ ref('f_origination_events_co_logs') }} AS fst
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }} AS fst
     INNER JOIN terminated_applications AS ta     			ON fst.application_id = ta.application_id
     LEFT JOIN vertical_brand AS vb               			ON fst.ally_slug = vb.ally_slug
     LEFT JOIN preapproval_flagged_applications AS pfa       ON fst.application_id = pfa.application_id

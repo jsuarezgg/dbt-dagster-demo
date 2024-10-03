@@ -21,5 +21,5 @@ SELECT
     END AS original_product,
     NOW() AS ingested_at,
     to_timestamp('{{ var("execution_date") }}') AS updated_at
-FROM {{ ref('f_allies_product_policies_co') }}
+FROM {{ source('silver_live', 'f_allies_product_policies_co') }}
 WHERE `type` IS NOT NULL

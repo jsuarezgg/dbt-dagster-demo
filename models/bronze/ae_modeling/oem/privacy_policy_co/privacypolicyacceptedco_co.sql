@@ -46,6 +46,7 @@ SELECT
       -- Fill with your custom attributes
     CAST(1 AS TINYINT) AS privacy_policy_accepted_passed,
     CAST(TRUE AS BOOLEAN) AS custom_is_privacy_policy_accepted,
+    json_tmp.client.cellphoneValidation.otp AS otp_code,
     NAMED_STRUCT(
         'event_id', json_tmp.eventId,
         'ocurred_on', ocurred_on::TIMESTAMP,
@@ -54,7 +55,7 @@ SELECT
             "isAccepted", CAST(TRUE AS BOOLEAN)
             )
     ) AS privacy_policy_detail_json
-    -- CAST(ocurred_on AS TIMESTAMP) AS privacypolicyacceptedco_co_at -- To store it as a standalone column, when needed
+-- CAST(ocurred_on AS TIMESTAMP) AS privacypolicyacceptedco_co_at -- To store it as a standalone column, when needed
 -- DBT SOURCE REFERENCE
 from {{ source('raw_modeling', 'privacypolicyacceptedco_co') }}
 -- DBT INCREMENTAL SENTENCE

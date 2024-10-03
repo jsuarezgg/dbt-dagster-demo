@@ -14,7 +14,7 @@ WITH f_ally_store_health_checks_co AS (
     healthcheck_checkout_position,
     healthcheck_component,
     healthcheck_datetime
-  FROM {{ ref('f_ally_store_health_checks_co') }}
+  FROM {{ source('silver_live', 'f_ally_store_health_checks_co') }}
 )
 ,
 d_ally_cms_integration_monitoring_co AS (
@@ -30,7 +30,7 @@ d_ally_cms_integration_monitoring_co AS (
 	  monitoring_widget_integration_updated_at,
 	  monitoring_widget_traffic_status,
 	  monitoring_widget_traffic_updated_at
-	FROM {{ ref('d_ally_cms_integration_monitoring_co') }}
+	FROM {{ source('silver_live', 'd_ally_cms_integration_monitoring_co') }}
 )
 SELECT
 	d.ally_slug,

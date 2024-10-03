@@ -42,6 +42,7 @@ SELECT
     json_tmp.client.name.full AS full_name,
     -- CUSTOM ATTRIBUTES
     CAST(TRUE AS BOOLEAN) AS custom_is_privacy_policy_accepted,
+    CAST(NULL AS INT) AS otp_code,
     NAMED_STRUCT(
         'event_id', json_tmp.eventId,
         'ocurred_on', ocurred_on::TIMESTAMP,

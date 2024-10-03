@@ -26,6 +26,7 @@ SELECT
     json_tmp.prospectId.id AS client_id,
     -- CUSTOM ATTRIBUTES
     CAST(1 AS TINYINT) AS custom_loan_acceptance_passed,
+    json_tmp.otp.code AS otp_code,
     named_struct(
         'event_id', json_tmp.eventId,
         'event_type', json_tmp.eventType,

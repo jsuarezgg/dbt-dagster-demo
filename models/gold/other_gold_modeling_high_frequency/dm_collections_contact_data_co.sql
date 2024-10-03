@@ -12,7 +12,7 @@
 WITH query1 AS (
 SELECT DISTINCT client_id,
 max(application_date) AS last_app_date
-FROM {{ ref('f_pii_applications_co') }}
+FROM {{ source('silver_live', 'f_pii_applications_co') }}
 WHERE application_cellphone IS NOT NULL
 GROUP BY 1
 ),
@@ -23,7 +23,7 @@ id_number,
 application_cellphone,
 application_email,
 application_date
-FROM {{ ref('f_pii_applications_co') }} pa
+FROM {{ source('silver_live', 'f_pii_applications_co') }} pa
 LEFT JOIN query1 q1
      ON pa.client_id = q1.client_id
 WHERE application_date = q1.last_app_date
@@ -34,7 +34,7 @@ SELECT client_id,
 full_name,
 last_name,
 TRIM(RIGHT(full_name , LENGTH(full_name) - CHARINDEX(' ', full_name))) AS second_name
-FROM {{ ref('d_prospect_personal_data_co') }}
+FROM {{ source('silver_live', 'd_prospect_personal_data_co') }}
 )
 
 -- Put together all the personal info from different sources
@@ -47,8 +47,8 @@ q2.application_date AS last_application_date,
 q3.full_name,
 RIGHT(q3.second_name , LENGTH(q3.second_name) - CHARINDEX(' ', q3.second_name)) AS first_name,
 q3.last_name
-FROM {{ ref('f_pii_applications_co') }} pa
-LEFT JOIN {{ ref('f_originations_bnpl_co') }} bnpl
+FROM {{ source('silver_live', 'f_pii_applications_co') }} pa
+LEFT JOIN {{ source('silver_live', 'f_originations_bnpl_co') }} bnpl
   ON pa.application_id=bnpl.application_id
 LEFT JOIN query3 q3
   ON pa.client_id = q3.client_id

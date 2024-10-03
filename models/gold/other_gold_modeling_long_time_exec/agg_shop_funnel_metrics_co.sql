@@ -16,6 +16,8 @@ WITH app_events AS (
         COALESCE(upper(user_properties:['addiCupoStateV2']),upper(event_properties:['addiCupo.stateV2']),'PREAPPROVAL') AS cupo_state_v2
     FROM  {{ ref('f_amplitude_addi_funnel_project') }} a
     WHERE 1=1
+        AND _year >= 2023
+        AND _month >= 1
         AND (upper(event_type) IN ('HOME_STORE_TAPPED','SHOP_STORE_TAPPED','HOME_PRODUCT_TAPPED','HOME_PROMOTED_BANNER_TAPPED','SELECT_STORE','SELECT_DEAL')
             OR (upper(event_type) = 'APP_SCREEN_OPENED' AND upper(event_properties:['screenName']) NOT IN  ('WELCOME',
                                                                                                             'SELECT_COUNTRY',
@@ -31,9 +33,9 @@ WITH app_events AS (
                 )
             )
         --AND COALESCE(upper( event_properties:['source']),upper(source)) = 'MOBILE_APP'
+        AND event_date >  current_date() - interval '1 year'
         AND upper(platform) IN ('IOS','ANDROID')
         AND upper(country) = 'COLOMBIA'
-        AND event_date >  current_date() - interval '1 year'
         AND COALESCE(a.user_id, a.amplitude_id) IS NOT NULL
 )
 , shop_application AS (

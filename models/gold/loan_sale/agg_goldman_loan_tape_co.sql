@@ -53,7 +53,7 @@ SELECT
     ls.synthetic_product_category,
     ls.tdsr,
     ls.term,
-    ls.unpaid_principal,
+    CASE WHEN ls.is_fully_paid = TRUE THEN 0 ELSE ls.unpaid_principal END AS unpaid_principal,
     ls.usury_rate,
     ls.ally_vertical,
     mk.suborder_id AS marketplace_suborder_id,
@@ -62,7 +62,8 @@ SELECT
     mk.suborder_attribution_weight_by_total_without_discount_amount,
     mk.suborder_attribution_weight_by_total_without_discount_amount * ls.approved_amount AS approved_amount_by_suborder,
     mk.suborder_attribution_weight_by_total_without_discount_amount * ls.current_installment_amount AS current_installment_amount_by_suborder,
-    mk.suborder_attribution_weight_by_total_without_discount_amount * unpaid_principal AS unpaid_principal_by_suborder
+    CASE WHEN ls.is_fully_paid = TRUE THEN 0
+            ELSE mk.suborder_attribution_weight_by_total_without_discount_amount * unpaid_principal END AS unpaid_principal_by_suborder
 FROM {{ ref('dm_loan_sale_co') }} ls 
 LEFT JOIN {{ ref('dm_originations_marketplace_suborders_co') }} mk ON ls.loan_id = mk.loan_id -- 1:M Join
 LEFT JOIN {{ ref('d_ally_management_allies_co') }} am ON mk.suborder_ally_slug = am.ally_slug

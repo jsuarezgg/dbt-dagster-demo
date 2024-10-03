@@ -126,7 +126,7 @@ FROM status_table st
  LEFT JOIN {{ ref('bl_ally_brand_ally_slug_status') }} ac
         ON st.ally_slug = ac.ally_slug
         AND ac.country_code = 'CO'
-LEFT JOIN {{ ref('d_ally_slugs_co') }} das
+LEFT JOIN {{ source('silver_live', 'd_ally_slugs_co') }} das
   ON das.ally_slug = st.ally_slug
 WHERE 1=1 
        AND flag_active = 'opt-in'

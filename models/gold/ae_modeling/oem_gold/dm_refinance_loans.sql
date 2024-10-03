@@ -14,7 +14,7 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
@@ -22,7 +22,7 @@ target_applications_co AS (
 {%- endif %}
 f_refinance_loans_co AS (
     SELECT *
-    FROM {{ ref('f_refinance_loans_co') }}
+    FROM {{ source('silver_live', 'f_refinance_loans_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -39,7 +39,7 @@ bl_application_channel_co AS (
 ,
 f_approval_loans_to_refinance_co AS (
     SELECT *
-    FROM {{ ref('f_approval_loans_to_refinance_co') }}
+    FROM {{ source('silver_live', 'f_approval_loans_to_refinance_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -47,7 +47,7 @@ f_approval_loans_to_refinance_co AS (
 ,
 f_approval_loans_to_refinance_co_logs AS (
     SELECT *
-    FROM {{ ref('f_approval_loans_to_refinance_co_logs') }}
+    FROM {{ source('silver_live', 'f_approval_loans_to_refinance_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -55,7 +55,7 @@ f_approval_loans_to_refinance_co_logs AS (
 ,
 f_applications_loans_to_refinance_co AS (
     SELECT *
-    FROM {{ ref('f_applications_loans_to_refinance_co') }}
+    FROM {{ source('silver_live', 'f_applications_loans_to_refinance_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -77,7 +77,7 @@ f_applications_loans_to_refinance_co AS (
 --,
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -85,7 +85,7 @@ f_applications_co AS (
 --,
 --f_loan_proposals_co AS (
 --    SELECT *
---    FROM {{ ref('f_loan_proposals_co') }}
+--    FROM {{ source('silver_live', 'f_loan_proposals_co') }}
 --    {%- if is_incremental() %}
 --    WHERE application_id IN (SELECT application_id FROM target_applications_co)
 --    {%- endif -%}
@@ -93,7 +93,7 @@ f_applications_co AS (
 ,
 f_underwriting_fraud_stage_co AS (
     SELECT *
-    FROM {{ ref('f_underwriting_fraud_stage_co') }}
+    FROM {{ source('silver_live', 'f_underwriting_fraud_stage_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}

@@ -13,7 +13,7 @@ select application_id,
        event_name,
        ocurred_on,
        row_number() over (partition by application_id order by ocurred_on asc) as rn
-from {{ ref('f_origination_events_co_logs') }}
+from {{ source('silver_live', 'f_origination_events_co_logs') }}
 where journey_stage_name is not null
 order by application_id asc, rn asc)
 select application_id,

@@ -15,7 +15,7 @@ WITH
 {%- if is_incremental() %}
 target_applications_co AS (
     SELECT DISTINCT application_id
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     WHERE ocurred_on_date BETWEEN (to_date('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_date('{{ var("end_date","placeholder_end_date") }}') AND
         last_event_ocurred_on_processed BETWEEN (to_timestamp('{{ var("start_date","placeholder_prev_exec_date") }}'- INTERVAL "{{var('incremental_slack_time_in_hours')}}" HOUR)) AND to_timestamp('{{ var("end_date","placeholder_end_date") }}')
 )
@@ -23,7 +23,7 @@ target_applications_co AS (
 {%- endif %}
 f_applications_co AS (
     SELECT *
-    FROM {{ ref('f_applications_co') }}
+    FROM {{ source('silver_live', 'f_applications_co') }}
     {%- if is_incremental() %}
     WHERE  application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -31,7 +31,7 @@ f_applications_co AS (
 ,
 f_originations_bnpl_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -39,7 +39,7 @@ f_originations_bnpl_co AS (
 ,
 f_originations_bnpn_co AS (
     SELECT *
-    FROM {{ ref('f_originations_bnpn_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpn_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -49,7 +49,7 @@ f_applications_marketplace_suborders_co AS (
     SELECT
         *,
         CASE WHEN suborder_total_amount_without_discount > 0 THEN suborder_total_amount_without_discount ELSE suborder_total_amount END AS synthetic_suborder_total_amount
-    FROM {{ ref('f_applications_marketplace_suborders_co') }}
+    FROM {{ source('silver_live', 'f_applications_marketplace_suborders_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -57,7 +57,7 @@ f_applications_marketplace_suborders_co AS (
 ,
 f_applications_marketplace_allies_product_policies_co AS (
     SELECT *
-    FROM {{ ref('f_applications_marketplace_allies_product_policies_co') }}
+    FROM {{ source('silver_live', 'f_applications_marketplace_allies_product_policies_co') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {%- endif -%}
@@ -76,7 +76,7 @@ applications_backfill_co AS (
         FIRST_VALUE(client_id,TRUE) AS client_id,
         FIRST_VALUE(client_type,TRUE) AS client_type,
         FIRST_VALUE(journey_name,TRUE) AS journey_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     {%- if is_incremental() %}
     WHERE application_id IN (SELECT application_id FROM target_applications_co)
     {% endif %}

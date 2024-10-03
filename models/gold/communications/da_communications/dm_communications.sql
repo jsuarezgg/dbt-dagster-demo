@@ -18,7 +18,7 @@
 
 WITH co_pii_applications AS (
 
-    SELECT * FROM {{ ref('f_pii_applications_co') }}
+    SELECT * FROM {{ source('silver_live', 'f_pii_applications_co') }}
 
 ),
 
@@ -28,7 +28,7 @@ f_origination_events_co_logs_cellphones AS (
     SELECT
         application_id,
         event_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     WHERE event_name IN (
       'CellphoneAlreadyLinkedToADifferentProspectCO',
       'CellphoneAlreadyLinkedToExistingClientCO',
@@ -41,7 +41,7 @@ f_origination_events_co_logs_mails AS (
     SELECT
         application_id,
         event_name
-    FROM {{ ref('f_origination_events_co_logs') }}
+    FROM {{ source('silver_live', 'f_origination_events_co_logs') }}
     WHERE event_name IN (
       'EmailAlreadyLinkedToExistingClientCO',
       'InvalidEmailCO'
@@ -52,7 +52,7 @@ f_originations_bnpl_co AS (
     SELECT
         application_id,
         loan_id
-    FROM {{ ref('f_originations_bnpl_co') }}
+    FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
 ),
 
 co_pii_applications_cellphones AS (
@@ -110,18 +110,6 @@ co_phones AS (
 
 ),
 
--- BRAZIL CELLPHONES
-
-br_phones AS (
-
-    SELECT
-        client_id,
-        application_cellphone
-    FROM {{ ref('f_pii_applications_br') }} fpab
-    QUALIFY ROW_NUMBER () OVER (PARTITION BY client_id ORDER BY last_event_ocurred_on_processed DESC) = 1
-
-),
-
 -- COLOMBIA EMAILS
 
 co_pii_applications_emails AS (
@@ -174,80 +162,6 @@ co_emails AS (
 
           )
     WHERE rn = 1
-
-),
-
--- BRAZIL EMAILS
-
-br_pii_applications_emails AS (
-
-    SELECT
-        client_id,
-        application_date,
-        LOWER(TRIM(application_email)) AS application_email,
-        rmt.loan_originated as was_originated
-    FROM {{ ref('f_pii_applications_br') }} fpab
-    LEFT JOIN {{ ref('risk_master_table_br') }} rmt
-    WHERE application_email IS NOT NULL
-      AND NOT CONTAINS(rmt.stages, 'EmailAlreadyLinkedToExistingClientBR')
-      AND NOT CONTAINS(rmt.stages, 'InvalidEmailBR')
-    QUALIFY ROW_NUMBER () OVER (PARTITION BY client_id ORDER BY last_event_ocurred_on_processed DESC) = 1
-),
-
-br_pii_applications_emails_originated AS (
-
-    SELECT DISTINCT
-        a.client_id,
-        a.application_email,
-        a.application_date,
-        b.client_originated
-    FROM br_pii_applications_emails a
-        LEFT JOIN (
-
-            SELECT
-                client_id,
-                array_contains(array_agg(was_originated), true) AS client_originated
-            FROM br_pii_applications_emails
-            GROUP BY 1
-
-        ) b ON a.client_id = b.client_id
-
-),
-
-br_emails AS (
-
-    SELECT
-        client_id,
-        application_email
-    FROM (
-
-        SELECT
-            *,
-            ROW_NUMBER() OVER (
-                PARTITION BY application_email
-                ORDER BY client_originated DESC, application_date) AS rn
-        FROM br_pii_applications_emails_originated
-
-          )
-    WHERE rn = 1
-
-),
-
--- JOIN EMAILS
-
-emails AS (
-
-    SELECT
-        *
-    FROM co_emails
-
-
-    UNION ALL
-
-
-    SELECT
-        *
-    FROM br_emails
 
 ),
 
@@ -325,7 +239,7 @@ SELECT
   cm.channel,
   cm.`from`,
   cm.`to`,
-  coalesce(coph.client_id, brph.client_id, em.client_id) AS client_id,
+  coalesce(coph.client_id, em.client_id) AS client_id,
   cm.message,
   cm.status,
   cm.sendgrid_opens_count,
@@ -345,15 +259,9 @@ FROM
 
   communications cm
 
-  LEFT JOIN emails em
+  LEFT JOIN co_emails em
     ON cm.channel = 'email'
     AND cm.`to` = em.application_email
-
-  LEFT JOIN br_phones brph
-    ON cm.twilio_country_client = 'BR'
-    AND cm.source = 'twilio'
-    AND (replace(cm.`from`, '+55', '') = brph.application_cellphone
-    OR replace(cm.`to`, '+55', '') = brph.application_cellphone)
 
   LEFT JOIN co_phones coph
     ON cm.twilio_country_client = 'CO'

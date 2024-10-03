@@ -23,7 +23,7 @@ f_syc_refinancing_instructions_co AS (
 
 d_prospect_personal_data_co AS (
 
-    SELECT * FROM {{ ref('d_prospect_personal_data_co') }}
+    SELECT * FROM {{ source('silver_live', 'd_prospect_personal_data_co') }}
 
 ),
 
@@ -88,25 +88,25 @@ dm_grande_lbl_eligibility_criteria AS (
 
 f_refinance_loans_co AS (
 
-    SELECT * FROM {{ ref('f_refinance_loans_co') }}
+    SELECT * FROM {{ source('silver_live', 'f_refinance_loans_co') }}
 
 ),
 
 f_kyc_bureau_income_estimator_co AS (
 
-    SELECT application_id, income_estimatedIncome FROM {{ ref('f_kyc_bureau_income_estimator_co') }}
+    SELECT application_id, income_estimatedIncome FROM {{ source('silver_live', 'f_kyc_bureau_income_estimator_co') }}
 
 ),
 
 f_kyc_bureau_personal_info_co AS (
 
-    SELECT application_id, personId_ageRange FROM {{ ref('f_kyc_bureau_personal_info_co') }}
+    SELECT application_id, personId_ageRange FROM {{ source('silver_live', 'f_kyc_bureau_personal_info_co') }}
 
 ),
 
 f_underwriting_fraud_stage_co AS (
 
-    SELECT application_id, credit_check_income_provider, tdsr FROM {{ ref('f_underwriting_fraud_stage_co') }}
+    SELECT application_id, credit_check_income_provider, tdsr FROM {{ source('silver_live', 'f_underwriting_fraud_stage_co') }}
 
 ),
 

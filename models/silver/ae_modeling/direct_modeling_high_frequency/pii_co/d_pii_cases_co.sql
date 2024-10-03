@@ -43,8 +43,8 @@ mkt_ops_pii_cases_co_deduplicated as (
 ),
 current_clients as (
     select distinct ls.client_id
-    from addi_prod.silver.f_fincore_loans_co ls
-    inner join {{ ref('f_kyc_bureau_personal_info_co') }} kyc
+    from {{ source('silver_live', 'f_fincore_loans_co') }} ls
+    inner join {{ source('silver_live', 'f_kyc_bureau_personal_info_co') }} kyc
     on ls.client_id = kyc.client_id
     where ls.state = "CURRENT" OR ls.state = "OVERDUE"
 ),
@@ -81,7 +81,7 @@ on events.client_id = mkt_ops.Client_ID or events.id_number = mkt_ops.Id_Number
 left join current_clients cc
 on coalesce(events.client_id, mkt_ops.Client_ID) = cc.client_id
 --in order to complete client_id data
-left join {{ ref('d_prospect_personal_data_co') }} ppd
+left join {{ source('silver_live', 'd_prospect_personal_data_co') }} ppd
 on coalesce(events.client_id, mkt_ops.client_id) is null
 and coalesce(events.id_number, mkt_ops.id_number) = ppd.id_number
 )

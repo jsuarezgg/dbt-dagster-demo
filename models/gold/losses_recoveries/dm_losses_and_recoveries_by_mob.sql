@@ -124,7 +124,7 @@ raw_charge_offs AS (
         loan_id,
         from_utc_timestamp(loan_cancellation_order_date, 'America/Bogota')::date AS charge_off_date,
         'NON_REFUNDED_CANCELLATION' AS charge_off_reason
-    FROM {{ ref('f_loan_cancellations_v2_co') }}
+    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }}
     WHERE loan_cancellation_reason IN ('FRAUD','ALLY_BAD_PRACTICE','CLIENT_DEATH')
         AND custom_loan_cancellation_status = 'V2_CANCELLATION_PROCESSED'
         AND loan_id NOT IN (SELECT loan_id FROM {{ ref('f_snc_charge_off_report_co') }} WHERE is_charge_off IS TRUE)
@@ -361,7 +361,7 @@ latest_records AS (
         AND loan_id NOT IN (
             SELECT
                 loan_id
-            FROM {{ ref('f_loan_cancellations_v2_co') }} flcvc
+            FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }} flcvc
             WHERE custom_loan_cancellation_status = 'V2_CANCELLATION_PROCESSED'
                 AND loan_cancellation_reason NOT IN ('FRAUD','ALLY_BAD_PRACTICE','CLIENT_DEATH')
     )
@@ -477,7 +477,7 @@ unified_losses AS (
 	WHERE loan_id IN (
 	    SELECT
 	        loan_id
-	    FROM silver.f_loan_cancellations_v2_co flcvc
+	    FROM {{ source('silver_live', 'f_loan_cancellations_v2_co') }} flcvc
 	    WHERE custom_loan_cancellation_status = 'V2_CANCELLATION_PROCESSED'
 	        AND loan_cancellation_reason IN ('FRAUD','ALLY_BAD_PRACTICE','CLIENT_DEATH')
 	)
@@ -534,8 +534,8 @@ unified_datamart AS (
 	    ol.condoned_amount_by_loan_recast + COALESCE(rl.condoned_amount_by_loan_recast, 0) AS condoned_amount_by_loan_recast,
 	    ol.condoned_amount_by_other_reasons + COALESCE(rl.condoned_amount_by_other_reasons, 0) AS condoned_amount_by_other_reasons,
 	    ol.net_opb,
-	    COALESCE(rl.is_completely_paid, FALSE) AS is_completely_paid,
-	    COALESCE(rl.is_fully_settled, FALSE) AS is_fully_settled,
+	    COALESCE(ol.is_completely_paid, rl.is_completely_paid, FALSE) AS is_completely_paid,
+	    COALESCE(ol.is_fully_settled, rl.is_fully_settled, FALSE) AS is_fully_settled,
 	    ol.OSPB + COALESCE(rl.OSPB, 0) AS OSPB,
 	    rl.loan_id AS refinancing_loan_id,
         ol.refinancing_date

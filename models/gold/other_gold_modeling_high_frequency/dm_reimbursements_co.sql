@@ -31,10 +31,10 @@ clc AS (
 		bool_and(CASE WHEN cls.loan_id IS NOT NULL THEN True ELSE False END) AS is_cancelled,
 		bool_and(lns.is_fully_paid) AS is_fully_paid,
 		max(aps.application_cellphone) AS application_cellphone
-	FROM addi_prod.silver.f_fincore_loans_co lns
-	LEFT JOIN {{ ref('f_pii_applications_co') }} aps ON lns.client_id = aps.client_id
-	LEFT JOIN {{ ref('f_fincore_clients_co') }} clt ON lns.client_id = clt.client_id
-	LEFT JOIN {{ ref('f_loan_cancellations_v2_co') }} cls ON lns.loan_id = cls.loan_id
+	FROM {{ source('silver_live', 'f_fincore_loans_co') }} lns
+	LEFT JOIN {{ source('silver_live', 'f_pii_applications_co') }} aps ON lns.client_id = aps.client_id
+	LEFT JOIN {{ source('silver_live', 'f_fincore_clients_co') }} clt ON lns.client_id = clt.client_id
+	LEFT JOIN {{ source('silver_live', 'f_loan_cancellations_v2_co') }} cls ON lns.loan_id = cls.loan_id
 	GROUP BY 1, 2
 ),
 

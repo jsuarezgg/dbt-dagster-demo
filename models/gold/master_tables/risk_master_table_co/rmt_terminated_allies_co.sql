@@ -18,7 +18,7 @@ last_day_terminated_allies AS (
                 PARTITION BY app.ally_slug
                 ORDER BY app.application_date DESC
            ) AS last_day
-    FROM {{ ref('f_applications_co') }} app
+    FROM {{ source('silver_live', 'f_applications_co') }} app
     INNER JOIN terminated_allies al ON app.ally_slug = al.ally_slug
 ),
 consolidated AS (

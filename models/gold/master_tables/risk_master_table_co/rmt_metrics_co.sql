@@ -10,11 +10,11 @@
 with initial_table as (
   select orig.loan_id,
          from_utc_timestamp(ls.first_payment_date, 'America/Bogota') as first_payment_date
-  from {{ ref('f_applications_co') }} apps
+  from {{ source('silver_live', 'f_applications_co') }} apps
   inner join (
-    SELECT application_id, loan_id FROM {{ ref('f_originations_bnpl_co') }}
+    SELECT application_id, loan_id FROM {{ source('silver_live', 'f_originations_bnpl_co') }}
     UNION ALL
-    SELECT application_id, loan_id FROM {{ ref('f_refinance_loans_co') }}
+    SELECT application_id, loan_id FROM {{ source('silver_live', 'f_refinance_loans_co') }}
     )
     orig on apps.application_id = orig.application_id
   left join {{ ref('dm_loan_status_co') }} ls

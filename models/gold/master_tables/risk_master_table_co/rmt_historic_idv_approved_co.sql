@@ -34,8 +34,8 @@
       )
     ) as last_idv_approval_date
   from
-    {{ ref('f_applications_co') }} apps
-    left join {{ ref('f_idv_stage_co') }} idv on apps.application_id = idv.application_id
-    left join {{ ref('f_identity_photos_third_party_co') }} idv_3 on apps.application_id = idv_3.application_id
+    {{ source('silver_live', 'f_applications_co') }} apps
+    left join {{ source('silver_live', 'f_idv_stage_co') }} idv on apps.application_id = idv.application_id
+    left join {{ source('silver_live', 'f_identity_photos_third_party_co') }} idv_3 on apps.application_id = idv_3.application_id
   group by
     1

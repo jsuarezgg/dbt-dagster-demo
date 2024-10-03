@@ -651,6 +651,12 @@ models:
         description: "Cluster ally"
       - name: client_type
         description: "Type of the client"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
+      - name: is_addishop_referral
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc). If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: is_addishop_referral_paid
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee. If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
       - name: stage
         description: "Aggregated stage"
       - name: stage_priority_proxy
@@ -731,6 +737,12 @@ models:
         description: "Vertical ally"
       - name: ally_cluster
         description: "Cluster ally"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
+      - name: is_addishop_referral
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc). If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
+      - name: is_addishop_referral_paid
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee. If not found default to FALSE - Business logic from gold.bl_application_addi_shop_co"
       - name: channel
         description: "Channel of the application"
       - name: client_type
@@ -2363,6 +2375,8 @@ models:
         description: "Vertical slug of the ally - Business logic from gold.bl_ally_brand_ally_slug_status"
       - name: ally_cluster
         description: "Ally cluster (KA/SMB) according to the CRM ally status - Business logic from gold.bl_ally_brand_ally_slug_status"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
       - name: order_id
         description: "Unique identifier of the order"
       - name: device_id
@@ -2713,11 +2727,11 @@ models:
       - name: consumer_revenue
         description: "total_interest"
       - name: is_addishop_referral
-        description: "Boolean to indicate wether the loan was started in Addishop channel (App/Web/Email/WA/etc)"
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc)"
       - name: addishop_channel
         description: "App/Web/Email/WA/etc"
       - name: is_addishop_referral_paid
-        description: "Boolean to indicate wether the loan was started in Addishop channel & the merchant is paying the Addishop fee"
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee"
       - name: shop_used_grouped_config
         description: "Indicates whether the attribution was due to a grouped slug (ie. in-store attribution) or not"
       - name: addishop_opt_in_date
@@ -2751,7 +2765,7 @@ models:
       - name: client_type
         description: "Type of the client"
       - name: segment
-        description: "Goog Book / Bad Book client (only BR)"
+        description: "Good Book / Bad Book client (only BR)"
       - name: journey_name
         description: "Application journey name"
       - name: application_channel
@@ -2790,6 +2804,8 @@ models:
         description: "Brand slug of the ally"  
       - name: ally_cluster
         description: "Ally cluster (KA/SMB) according to the CRM ally status - Business logic from gold.bl_ally_brand_ally_slug_status"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
       - name: dq31_at_31_upb
         description: "deliquency 31 at 31 unpaid principal balance"
       - name: dq31_at_31_opb
@@ -2805,7 +2821,7 @@ models:
       - name: ally_payment_term
         description: "Days between the loan and the ally payment (only applies to daily report term)"
       - name: ally_diff_payment_date
-        description: "Days between the originagit tion date and the ally payment date"  
+        description: "Days between the origination date and the ally payment date"
       - name: has_fga_flag
         description: "Flag that tell us when the loan has fga"    
       - name: ingested_at
@@ -2832,9 +2848,9 @@ models:
       - name: synthetic_product_subcategory
         description: "Processed application product sub-category - Business logic from gold.bl_application_product_co/br"
       - name: is_addishop_referral
-        description: "Boolean to indicate wether the loan was started in Addishop channel (App/Web/Email/WA/etc)"
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc)"
       - name: is_addishop_referral_paid
-        description: "Boolean to indicate wether the loan was started in Addishop channel & the merchant is paying the Addishop fee"
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee"
       - name: ally_slug
         description: "Slug of the ally"
       - name: store_slug
@@ -2845,6 +2861,8 @@ models:
         description: "Brand slug of the ally"  
       - name: ally_cluster
         description: "Ally cluster (KA/SMB) according to the CRM ally status - Business logic from gold.bl_ally_brand_ally_slug_status"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
       - name: guarantee_provider
         description: "Guarantee provider, FNG or FGA"
       - name: status_ally_slug
@@ -2902,15 +2920,7 @@ models:
       - name: dq31_at_31_upb
         description: "deliquency 31 at 31 unpaid principal balance"
       - name: dq31_at_31_opb
-        description: "deliquency 31 at 31 origination principal balance"  
-      - name: cts_uw
-        description: "Cost to serve & underwriting by synthetic_product_category"
-      - name: total_cts_uw  
-        description: "Total cost to serve & underwriting by country"
-      - name: cof
-        description: "Cost of funding by synthetic_product_category"
-      - name: total_cof
-        description: "Total cost of funding by country"
+        description: "deliquency 31 at 31 origination principal balance"
       - name: payment_cost_usd
         description: "Payment cost at transactional level"
       - name: cost_to_serve_usd
@@ -3418,8 +3428,6 @@ models:
     columns:
       - name: user_id
         description: "Equals the client_ID"
-        tests:
-          - not_null
       - name: session_id
         description: "Id of the app session"
       - name: country
@@ -3428,63 +3436,6 @@ models:
         description: "Start date of the session"
       - name: cupo_state_v2
         description: "Cupo State at the time of the session"
-      - name: shopping_search
-        description: "Amount of events that belong to a shopping search intent"
-      - name: shopping_browse
-        description: "Amount of events that belong to a shopping browse intent"
-      - name: shopping_intention
-        description: "Amount of events that belong to a shopping intent (click in a store)"
-      - name: payment_intention
-        description: "Amount of events that belong to a payment intent"
-      - name: payment_curiosity
-        description: "Amount of events that belong to a payment curiosity"
-      - name: session_profile
-        description: "Session type"
-      - name: session_profile_category
-        description: "Session category"
-      - name: state
-        description: "State of the payment promise"
-      - name: last_event_name_processed
-        description: "Last event name processed"
-      - name: event_name
-        description: "Name of the event"
-      - name: last_event_id_processed
-        description: "Last event id processed"
-      - name: event_id
-        description: "UUID of the event"
-      - name: last_event_ocurred_on_processed
-        description: "Timestamp of the last event processed"
-      - name: ocurred_on_date
-        description: "Event ocurred_on Timestamp as date"
-      - name: updated_at
-        description: "Environment variable (execution_date) from Airflow/dbt"
-      - name: kustomer_collections_resol_tree1
-        description: "communication resolution 1"
-      - name: kustomer_collections_resol_tree2
-        description: "communication resolution 2"
-      - name: kustomer_collections_resol_tree3
-        description: "communication resolution 3"
-  - name: agg_shop_app_session_profile
-    description: "Aggegrate table summarizing app profile metrics"
-    columns:
-      - name: period_type
-        description: "Type of period (Weekly or Monthly)"
-      - name: period
-        description: "Date of the session"
-      - name: user_id
-        description: "Equals the client_ID"
-        tests:
-          - not_null
-      - name: shop_sessions
-        description: "Amount of Shop sessions during the period"
-      - name: pay_sessions
-        description: "Amount of Pay sessions during the period"
-      - name: shop_pay_sessions
-        description: "Amount of Shop & Pay sessions during the period"
-      - name: other_sessions
-        description: "Amount of Other purpose sessions during the period"
-      - name: user_profile
-        description: "Main purpose of the users app usage during the period"
   - name: dm_collections_commercial_tradelines_co
     description: "Datamart for client_id based tradelines aggregated metrics in CO"
     columns:
@@ -4079,6 +4030,8 @@ models:
         description: "Suborder ally slug vertical name"
       - name: suborder_ally_cluster
         description: "Suborder ally slug cluster"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
       - name: status_ally_brand_suborder
         description: "Suborder ally slug brand custom status"
       - name: status_ally_slug_suborder
@@ -4148,6 +4101,8 @@ models:
         description: "Suborder ally slug vertical name"
       - name: suborder_ally_cluster
         description: "Suborder ally slug cluster"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
       - name: status_ally_brand_suborder
         description: "Suborder ally slug brand custom status"
       - name: status_ally_slug_suborder
@@ -4342,3 +4297,519 @@ models:
         description: "Guarantee provider"
       - name: ltl_flag
         description: "Flag to indicate if the loan is LTL"
+  - name: agg_app_daily_profile
+    description: "Categorizying app sessions by type on a daily basis"
+    columns:
+      - name: user_id
+        description: "Equals the client_ID"
+      - name: profile
+        description: "App profile"
+  - name: agg_app_weekly_profile
+    description: "Categorizying app sessions by type on a weekly basis"
+    columns:
+      - name: user_id
+        description: "Equals the client_ID"
+      - name: profile
+        description: "App profile"
+  - name: agg_app_monthly_profile
+    description: "Categorizying app sessions by type on a monthly basis"
+    columns:
+      - name: user_id
+        description: "Equals the client_ID"
+      - name: profile
+        description: "App profile"
+  - name: agg_app_session_profile
+    description: "Agg to measure the number of users in app sessions by profile and period"
+    columns:
+      - name: period_type
+        description: "DAILY, WEEKLY OR MONTHLY"
+      - name: period
+        description: "period_date, period_week or period_month"
+      - name: profile
+        description: "App profile"
+      - name: total_users
+        description: "number of total users"
+      - name: total_users_logged
+        description: "number of total users logged in amplitude with user_id not null"
+  - name: snp_monthly_agg_goldman_loan_tape_co
+    description: "Monthly snapshot of the Agg Goldman loan tape"
+    columns:
+      - name: snapshot_timestamp
+        description: "Timestamp parsed as date of the snapshot"
+      - name: loan_id
+        description: "UUID of the loan"
+      - name: marketplace_suborder_id
+        description: "UUID of the marketplace suborder"
+      - name: product
+        description: "Product"
+      - name: credit_score
+        description: "Credit score"
+      - name: credit_score_product
+        description: "Credit score product"
+      - name: tdsr
+        description: "TDSR"
+      - name: merchant_discount_fee
+        description: "Merchant discount fee"
+      - name: estimated_income
+        description: "Estimated income"
+      - name: credit_check_income_provider
+        description: "Credit check income provider"
+      - name: region
+        description: "Region of the ally"
+      - name: addi_pd
+        description: "ADDI PD"
+      - name: foreberance
+        description: "Flag to indicate if the loan is modificated"
+      - name: returning_client
+        description: "Flag to indicate if the client is returning"
+      - name: max_dpd
+        description: "Max days past due"
+      - name: product_type
+        description: "Product type"
+      - name: client_id
+        description: "UUID of the client"
+      - name: current_apr
+        description: "Current applicable rate"
+      - name: origination_apr
+        description: "Origination applicable rate"
+      - name: low_balance_loan
+        description: "Flag to indicate if the loan is low balance"
+      - name: current_usury_rate
+        description: "Current usury rate"
+      - name: expected_maturity_date
+        description: "Expected maturity date"
+      - name: current_installment_amount
+        description: "Current installment amount"
+      - name: ally_name
+        description: "Ally name"
+      - name: ally_vertical
+        description: "Ally vertical"
+      - name: is_marketplace
+        description: "Flag to indicate if the loan is from a marketplace"
+      - name: is_fully_paid
+        description: "Flag to indicate if the loan is fully paid"
+      - name: is_cancelled
+        description: "Flag to indicate if the loan is cancelled"
+      - name: client_max_dpd
+        description: "Max days past due of the client"
+      - name: obligor_age_range
+        description: "Age range of the obligor"
+      - name: approved_amount
+        description: "Approved amount"
+      - name: cancellation_reason
+        description: "Cancellation reason"
+      - name: first_payment_date
+        description: "First payment date"
+      - name: mob
+        description: "Months on book"
+      - name: origination_date
+        description: "Origination date"
+      - name: term
+        description: "Term of the loan"
+      - name: unpaid_principal
+        description: "Unpaid principal"
+      - name: days_past_due
+        description: "Days past due of the loan"
+      - name: expected_final_losses_percentage
+        description: "Expected final losses percentage"
+      - name: expected_net_profit_percentage
+        description: "Expected net profit percentage"
+      - name: loan_lead_gen_fee_rate
+        description: "Loan lead gen fee rate, always 0 for marketplace loans"
+      - name: is_addi_employee
+        description: "Flag to indicate if the client is an ADDI employee"
+      - name: id_number
+        description: "ID number"
+      - name: sale_date
+        description: "Sale date"
+      - name: is_fga_claimed
+        description: "Flag to indicate if the FGA is claimed"
+      - name: guarantee_provider
+        description: "Guarantee provider"
+      - name: ltl_flag
+        description: "Flag to indicate if the loan is LTL"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: agg_app_funnel_metrics_co
+    description: "App funnel metrics table by period type"
+    columns:
+      - name: period_type
+        description: Type of the period
+      - name: period
+        description: Specific period value
+      - name: users_total
+        description: Total number of users
+      - name: users_logged
+        description: Logged-in users count
+      - name: users_guest
+        description: Guest users count
+      - name: users_shop_behavior
+        description: Users showing shop behavior
+      - name: users_store_clicker
+        description: PLACEHOLDER DESCRIPTION
+      - name: users_logged_store_clicked
+        description: PLACEHOLDER DESCRIPTION
+      - name: users_guest_store_clicked
+        description: PLACEHOLDER DESCRIPTION
+      - name: users_logged_shop_behavior
+        description: Logged-in users showing shop behavior
+      - name: users_guest_shop_behavior
+        description: Guest users showing shop behavior
+      - name: users_shop_intention
+        description: Users with shopping intention
+      - name: users_logged_shop_intention
+        description: Logged-in users with shopping intention
+      - name: users_guest_shop_intention
+        description: Guest users with shopping intention
+      - name: users_marketplace_seen
+        description: Users who have seen the marketplace
+      - name: users_logged_marketplace_seen
+        description: Logged-in users who have seen the marketplace
+      - name: users_guest_marketplace_seen
+        description: Guest users who have seen the marketplace
+      - name: users_marketplace_browsing
+        description: Users browsing the marketplace
+      - name: users_logged_marketplace_browsing
+        description: Logged-in users browsing the marketplace
+      - name: users_guest_marketplace_browsing
+        description: Guest users browsing the marketplace
+      - name: users_product_interaction
+        description: Users interacting with products
+      - name: users_logged_product_interaction
+        description: Logged-in users interacting with products
+      - name: users_guest_product_interaction
+        description: Guest users interacting with products
+      - name: users_add_to_cart
+        description: Users who added items to cart
+      - name: users_logged_add_to_cart
+        description: Logged-in users who added items to cart
+      - name: users_guest_add_to_cart
+        description: Guest users who added items to cart
+      - name: users_mktplace_checkout
+        description: Users completing checkout in marketplace
+      - name: users_logged_mktplace_checkout
+        description: Logged-in users completing checkout in marketplace
+      - name: users_guest_mktplace_checkout
+        description: Guest users completing checkout in marketplace
+      - name: applications
+        description: Total number of applications
+      - name: referral_applications
+        description: Total number of referral applications
+      - name: referral_paid_applications
+        description: Total number of referral paid applications
+      - name: shop_applications
+        description: Shop-related applications
+      - name: shop_paid_applications
+        description: Paid shop applications
+      - name: mktplace_applications
+        description: Marketplace applications
+      - name: users_applying
+        description: Users submitting applications
+      - name: referral_users_applying
+        description: referral users submitting applications
+      - name: referral_paid_users_applying
+        description: referral paid users submitting applications
+      - name: users_shop_applying
+        description: Shop users submitting applications
+      - name: shop_paid_users_applying
+        description: Paid shop users submitting applications
+      - name: mktplace_users_applying
+        description: Marketplace users submitting applications
+      - name: originations
+        description: Total number of originations
+      - name: shop_originations
+        description: Shop-related originations
+      - name: Referral_originations
+        description: Referral shop-related originations
+      - name: Referral_paid_originations
+        description: Referral paid shop-related originations
+      - name: referral_paid_users_originating
+        description: Paid shop originations
+      - name: mktplace_originations
+        description: Marketplace originations
+      - name: referral_users_originating
+        description: Referral Users completing originations
+      - name: users_shop_originating
+        description: Shop users completing originations
+      - name: mktplace_users_originating
+        description: Marketplace users completing originations
+  - name: bl_application_id_to_application_process_id_co
+    description: "Business Logic table meant to translate original application_ids to the application_process_id they are a part of (updated concept: check: @Application Processes (Notion page)). Additional reference: @gold.bl_application_id_to_application_process_id_co (Notion page) "
+    columns:
+      - name: application_id
+        description: "UUID of the application"
+      - name: application_process_id
+        description: "UUUD of the application process"
+      - name: debug_application_process_baseline_id
+        description: "UUUD of the application process baseline (used to build the application process id)"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: dm_contribution_income_components_co
+    description: "Business Logic table (loan_id based) with all of the components involved to compute the Contribution Income USD as part of the North Star KPI's"
+    columns:
+      - name: country_code
+        description: "Country code, fixed to CO for entire table"
+      - name: application_id
+        description: "UUID of the application"
+      - name: custom_application_suborder_pairing_id
+        description: "Custom UUID built on top of joining: the application id + suborder id"
+      - name: loan_id
+        description: "UUID of the loan"
+      - name: client_id
+        description: "UUID of the client"
+      - name: origination_date_local
+        description: "Timestamp of origination - in COT/UTC-5, according to local country"
+      - name: ally_slug
+        description: "Ally Slug"
+      - name: custom_debug_attribution_weight
+        description: "Factor which represents the portion of the whole loan in each suborder"
+      - name: term
+        description: "Term of the loan"
+      - name: client_type
+        description: "Type of the client (Prospect or Returning Client)"
+      - name: synthetic_product_category
+        description: "Processed application product category - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_subcategory
+        description: "Processed application product sub-category - Business logic from gold.bl_application_product_co/br"
+      - name: gmv_usd
+        description: "GMV (USD)"
+      - name: total_revenue_usd
+        description: "consumer_revenue + merchant_revenue (USD)"
+      - name: guarantee_amount_usd
+        description: "guarantee_amount (USD)"
+      - name: fng_cost_amount_usd
+        description: "approved_amount * fng_cost_rate (USD)"
+      - name: expected_final_losses_usd
+        description: "Losses expected at the time of origination"
+      - name: approved_amount_filtered_for_losses_usd
+        description: "Approved amount of loan filtering only loans with expected losses not null (USD)"
+      - name: payment_cost_usd
+        description: "Payment Cost by term (USD)"
+      - name: cost_to_serve_usd
+        description: "Cost to serve by term (USD)"
+      - name: underwriting_cost_usd
+        description: "GMV - Only for PROSPECTS - (USD)"
+      - name: cost_of_funding_usd
+        description: "Cost of Funding (USD)"
+  - name: dm_originations_detailed_by_suborder
+    description: "New Data mart that represents the same as dm_originations but expanding its scope on marketplace originations, for which a new row is created per suborder, all values are calculated or attributed accordingly. WHen dealing with non-marketplace applications the values are the exact same as in dm_originations"
+    columns:
+      - name: row_id
+        description: "Table PK/ Unique identifier. Has value (MD5) built on top of custom_application_suborder_pairing_id when the row represents a marketplace suborder, if this is not the case it is then built on top of application_id"
+      - name: country_code
+        description: "Code of the country (BR or CO)"
+      - name: application_id
+        description: "UUID of the application"
+      - name: custom_application_suborder_pairing_id
+        description: "Custom UUID built on top of joining: the application id + suborder id"
+      - name: loan_id
+        description: "UUID of the loan"
+      - name: client_id
+        description: "UUID of the client"
+      - name: refinanced_by_origination_of_loan_id
+        description: "Originated loan UUID - this is an origination that refinances 1 or more previously existing loans"
+      - name: order_id
+        description: "UUID of the order"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: store_slug
+        description: "Slug of the store"
+      - name: origination_date
+        description: "Date of the origination in UTC timezone"
+      - name: origination_date_local
+        description: "Date of the origination in local timezone"
+      - name: origination_hour_local
+        description: "hour when application started - localized to country"
+      - name: origination_minute_local
+        description: "minute when application started - localized to country"
+      - name: lbl
+        description: "Boolean indicating if the loan is low balance"
+      - name: term
+        description: "Term of the loan"
+      - name: credit_policy_name
+        description: "Credit check policy name"
+      - name: pd_calculation_method
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: client_type
+        description: "Type of the client (Prospect or Returning Client)"
+      - name: journey_name
+        description: "Application journey name"
+      - name: application_channel
+        description: "Channel of the application"
+      - name: synthetic_channel
+        description: "Custom application_channel grouping - Business logic from gold.bl_application_channel"
+      - name: original_product
+        description: "Original application product (only originations v2) - Business logic from gold.bl_application_product_co/br"
+      - name: processed_product
+        description: "Processed application product - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_category
+        description: "Processed application product category - Business logic from gold.bl_application_product_co/br"
+      - name: synthetic_product_subcategory
+        description: "Processed application product sub-category - Business logic from gold.bl_application_product_co/br"
+      - name: santander_branched
+        description: "Custom boolean flag for applications that are going through Santander journey and pass their Risk Evaluation"
+      - name: santander_origination
+        description: "Custom boolean flag for originations that are going through Santander journey and were originated"
+      - name: approved_amount
+        description: "Origination amount approved"
+      - name: requested_amount
+        description: "Requested amount prioritizing requested_amount_without_discount over requested_amount when the former is available"
+      - name: gmv
+        description: "Requested amount prioritizing requested_amount_without_discount over requested_amount when the former is available"
+      - name: guarantee_rate
+        description: "Loan FGA rate accepted by the client at loan proposal stage"
+      - name: guarantee_provider_with_default
+        description: "Guarantee provider, FNG or FGA"
+      - name: fng_cost_amount
+        description: "For FNG: (o.approved_amount * ff.fng_cost_rate) + (o.approved_amount * (guarantee_rate * ((1/(1+fga_tax_rate)) * fga_tax_rate)))"
+      - name: guarantee_amount_charged_at_checkout
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: guarantee_amount
+        description: "(guarantee_rate * requested_amount) * (1/1.19) * 0.9 * (1 - expected_loss_rate)"
+      - name: has_fga_flag
+        description: "Flag that tell us when the loan has fga"
+      - name: interest_rate
+        description: "Loan interest rate accepted by the client at loan proposal stage"
+      - name: total_interest
+        description: "interest_rate * requested_amount) * (1 - expected_loss_rate)"
+      - name: lead_gen_fee_rate
+        description: "Lead Gen Fee rate if the application is shop_referral_paid TRUE"
+      - name: lead_gen_fee_amount
+        description: "lead_gen_fee_rate * requested_amount"
+      - name: ally_mdf
+        description: "MDF of the ally"
+      - name: mdf_amount
+        description: "ally_mdf * requested_amount"
+      - name: synthetic_origination_marketplace_purchase_fee
+        description: "Origination a-posteriori calculated marketplace purchase fee - weighted percentage, basically SUM(suborder_marketplace_purchase_fee * synthetic_suborder_total_amount) divided by the SUM(synthetic_suborder_total_amount) of the marketplace suborders in the origination"
+      - name: synthetic_origination_marketplace_purchase_fee_amount
+        description: "Origination a-posteriori calculated marketplace purchase fee amount - basically the SUM(suborder_marketplace_purchase_fee * synthetic_suborder_total_amount) of the marketplace suborders in the origination"
+      - name: expected_collection_fee_amount
+        description: "expected late fee amount"
+      - name: consumer_revenue
+        description: "guarantee_amount + total_interest"
+      - name: merchant_revenue
+        description: "lead_gen_fee_amount + mdf_amount + synthetic_origination_marketplace_purchase_fee_amount (new 2023-03)"
+      - name: total_revenue
+        description: "consumer_revenue + merchant_revenue"
+      - name: ally_vertical
+        description: "Vertical of the ally"
+      - name: ally_brand
+        description: "Brand of the ally"
+      - name: ally_cluster
+        description: "Cluster of the ally slug"
+      - name: account_kam_name
+        description: "Salesforce KAM User Name"
+      - name: approved_amount_filtered_for_losses
+        description: "Approved amount of each loan filtering only loans with expected losses not null"
+      - name: guarantee_expected_loss_recovery_amount
+        description: "Guarantee expected recovery losses due to FNG policy"
+      - name: gross_expected_final_losses_amount
+        description: "Expected final losses amount without discounting FNG recovery"
+      - name: expected_final_losses
+        description: "Losses expected at the time of origination"
+      - name: expected_final_losses_rate
+        description: "DESCRIPTION_PLACEHOLDER"
+      - name: dq31_at_31_upb
+        description: "deliquency 31 at 31 unpaid principal balance"
+      - name: dq31_at_31_opb
+        description: "deliquency 31 at 31 origination principal balance"
+      - name: dq31_at_31_date
+        description: "deliquency 31 at 31 date"
+      - name: is_addishop_referral
+        description: "Boolean to indicate weather the loan was started in Addishop channel (App/Web/Email/WA/etc)"
+      - name: is_addishop_referral_paid
+        description: "Boolean to indicate weather the loan was started in Addishop channel & the merchant is paying the Addishop fee"
+      - name: addishop_channel
+        description: "Channel where the transaction was referred (APP, SMS, WA, E-MAIL, WEB, etc.)"
+      - name: shop_used_grouped_config
+        description: "Indicates whether the attribution was due to a grouped slug (ie. in-store attribution) or not"
+      - name: addishop_opt_in_date
+        description: "Slug´s Shop opt_in date at the time of the application if its a shop_referral_paid TRUE"
+      - name: addishop_opt_out_date
+        description: "Slug´s Shop opt_out date at the time of the application if its a shop_referral_paid TRUE"
+      - name: fx_rate
+        description: "Currency exchange rate (BRL to USD / COP to USD)"
+      - name: segment
+        description: "Good Book / Bad Book client (only BR)"
+      - name: debug_row_granularity
+        description: "Debug string field with either of these values: MARKETPLACE_SUBORDER_ORIGINATION | NON_MARKETPLACE_ORIGINATION"
+      - name: debug_attribution_weight
+        description: "Debug value that represents the exact attribution value used for each row that represents marketplace suborders, decimal value between 0 and 1"
+      - name: debug_in_marketplace_order_num_allies
+        description: "Debug field that represents the # of allies found in a marketplace order/application"
+      - name: debug_suborders_quality_alert_trigger
+        description: "Debug field set to TRUE when there is an issue with data quality with marketplace suborders data"
+      - name: ingested_at
+        description: "Runtime (datetime) when query was run"
+      - name: updated_at
+        description: "Environment variable (execution_date) from Airflow/dbt"
+  - name: dm_legal_ai_assistant_by_loan
+    description: "Datamart for Legal to create an AI assistant by loan"
+    columns:
+      - name: loan_id
+        description: "UUID of the originated due to refinance loan"
+      - name: client_id
+        description: "UUID of the client"
+      - name: application_id
+        description: "UUID of the application"
+      - name: ally_slug
+        description: "Slug of the ally"
+      - name: approved_amount
+        description: "Approved amount of the loan"
+      - name: term
+        description: "Term of the loan"
+      - name: interest_rate
+        description: "Interest Rate (effective annual rate)"
+      - name: fully_paid_date
+        description: "Date when the loan was fully paid"
+      - name: origination_date_local
+        description: "Timestamp when application started - localized to country"
+      - name: bureau_report_detail_json
+        description: "Struct field with information from experian bureau report "
+      - name: loan_acceptance_detail_json
+        description: "JSON with information about oan acceptance"
+      - name: installments_detail_json
+        description: "JSON with information about installments"
+      - name: loan_acceptance_date_local
+        description: "Loan acceptance date local"
+      - name: state
+        description: "Status of the loan"
+      - name: num_obl
+        description: "String with a size of 18 characters from the last 12 values of the loan_id "
+  - name: dm_legal_ai_assistant_by_client
+    description: "Datamart for Legal to create an AI assistant by client"
+    columns:
+      - name: client_id
+        description: "UUID of the client"
+      - name: full_name
+        description: "Full name of the client"
+      - name: id_number
+        description: "National ID number"
+      - name: id_type
+        description: "National ID type"
+      - name: document_expedition_city
+        description: "city that we can find in the document of the person"
+      - name: document_expedition_date
+        description: "date when the document was expedited"
+      - name: last_name
+        description: "Last name"
+      - name: privacy_policy_accepted_date
+        description: "Date whn the privacy policy was accepted"
+      - name: privacy_policy_detail_json
+        description: "JSON with extra information about privacy policy data"
+      - name: privacy_policy_accepted_application_id
+        description: "application id when the privacy policy was accepted"
+      - name: application_cellphone
+        description: "Cellphone from each application"
+      - name: application_email
+        description: "Application email from each application"
+      - name: message_info_detailed_json
+        description: "JSON with Information about the sms message we sent to clients"
+      - name: email_info_detailed_json
+        description: "JSON with Information about the email message we sent to clients"
+        

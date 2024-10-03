@@ -76,6 +76,7 @@ SELECT
     COALESCE(mktplc_o.suborder_ally_vertical, o.ally_vertical) AS ally_vertical,
     COALESCE(mktplc_o.suborder_ally_brand, o.ally_brand) AS ally_brand,
     COALESCE(mktplc_o.suborder_ally_cluster, o.ally_cluster) AS ally_cluster,
+    COALESCE(mktplc_o.account_kam_name, o.account_kam_name) AS account_kam_name,
     -- F. LOAN PERFORMANCE DATA + LOSSES FIELDS
     COALESCE(mktplc_o.{{ attribution_weight_column }} * o.approved_amount_filtered_for_losses, o.approved_amount_filtered_for_losses) AS approved_amount_filtered_for_losses,
     COALESCE(mktplc_o.{{ attribution_weight_column }} * o.guarantee_expected_loss_recovery_amount, o.guarantee_expected_loss_recovery_amount) AS guarantee_expected_loss_recovery_amount,

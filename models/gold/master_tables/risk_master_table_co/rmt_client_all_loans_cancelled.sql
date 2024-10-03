@@ -13,9 +13,9 @@ WITH prev_loans as (
         base.loan_id,
         COUNT(DISTINCT prev.loan_id) AS total_prev_loans
     FROM
-        {{ ref('f_originations_bnpl_co') }} base
+        {{ source('silver_live', 'f_originations_bnpl_co') }} base
     INNER JOIN
-        {{ ref('f_originations_bnpl_co') }} prev
+        {{ source('silver_live', 'f_originations_bnpl_co') }} prev
     ON base.client_id = prev.client_id
         AND prev.origination_date < base.origination_date
     GROUP BY
@@ -28,9 +28,9 @@ cancelled_loans AS (
         orig.loan_id,
         COUNT(DISTINCT canc.loan_id) AS cancelled_loans
     FROM
-        {{ ref('f_originations_bnpl_co') }} orig
+        {{ source('silver_live', 'f_originations_bnpl_co') }} orig
     LEFT JOIN
-        {{ ref('f_loan_cancellations_v2_co') }} canc
+        {{ source('silver_live', 'f_loan_cancellations_v2_co') }} canc
     ON orig.client_id = canc.client_id
         AND canc.loan_cancellation_order_date <= orig.origination_date
     WHERE
@@ -52,7 +52,7 @@ SELECT
         ELSE 'Not All Prev Loans Cancelled'
     END AS loans_cancelled_flag
 FROM
-    {{ ref('f_originations_bnpl_co') }} AS orig
+    {{ source('silver_live', 'f_originations_bnpl_co') }} AS orig
 LEFT JOIN prev_loans ON orig.client_id = prev_loans.client_id AND orig.loan_id = prev_loans.loan_id
 LEFT JOIN cancelled_loans ON orig.client_id = cancelled_loans.client_id AND orig.loan_id = cancelled_loans.loan_id
 )

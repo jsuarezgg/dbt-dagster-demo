@@ -111,7 +111,7 @@ LEFT JOIN hubspot h
 LEFT JOIN (select 
                 distinct(ally_slug) as ally_slug
                 ,min(application_date - interval '5 hour')  as slug_first_app_date
-                from {{ ref('f_applications_co') }} a
+                from {{ source('silver_live', 'f_applications_co') }} a
                 group by 1
                 ) sfa on al.ally_slug=sfa.ally_slug
 WHERE 1=1

@@ -16,7 +16,7 @@
     preapproval_amount,
     row_number() over(partition by client_id, from_utc_timestamp(application_date, 'America/Bogota')::date order by application_date) as rn
   from
-    {{ ref('f_applications_co') }}
+    {{ source('silver_live', 'f_applications_co') }}
   where
     channel = 'PRE_APPROVAL'
     AND custom_is_preapproval_completed

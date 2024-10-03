@@ -26,7 +26,7 @@ refinance_condonations AS (
         rc.condonation_reason, --condonation_reason: Successful refinance done by the client
         rc.condonation_type, --condonation_type:CONDONATION_BY_ORIGINATIONS
         TO_DATE(FROM_UTC_TIMESTAMP(COALESCE(sc.condonation_date,rc.condonation_date) , 'America/Bogota')) AS condonation_date
-    FROM {{ ref('f_refinance_condonations_co') }} AS rc
+    FROM {{ source('silver_live', 'f_refinance_condonations_co') }} AS rc
     LEFT JOIN(
         --Only last state in syc refinance loan, used to capture some post refinance-condonation fixes to amount and date
         SELECT loan_id, condonation_date

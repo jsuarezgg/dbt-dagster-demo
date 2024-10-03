@@ -23,7 +23,7 @@ apps_no_preapp AS (
 f_allies_product_policies_co AS (
     SELECT
         *
-    FROM {{ ref('f_allies_product_policies_co') }}
+    FROM {{ source('silver_live', 'f_allies_product_policies_co') }}
 ),
 consolidated as (
     select distinct
@@ -253,8 +253,8 @@ consolidated as (
     left join {{ ref('rmt_terminated_allies_co') }} ta on apps.ally_slug = ta.ally_slug
     --left join kyc_id_region_unified kyc_id on apps.application_id = kyc_id.application_id
     left join {{ ref('loan_ownership_co') }} lo on apps.loan_id = lo.loan_id
-    left join addi_prod.gold.rmt_pd_models_co pdm on apps.application_id = pdm.application_id
-    left join addi_prod.gold.rmt_pd_models_co pdm2 on apps.application_id=pdm2.application_id and pdm2.final_pd_score < pdm2.original_pd_score --IA loans have a lower final PD
+    left join {{ ref('rmt_pd_models_co') }} pdm on apps.application_id = pdm.application_id
+    left join {{ ref('rmt_pd_models_co') }} pdm2 on apps.application_id=pdm2.application_id and pdm2.final_pd_score < pdm2.original_pd_score --IA loans have a lower final PD
     LEFT JOIN {{ ref('dm_application_process_funnel_co') }} AS funnel_dm ON funnel_dm.application_process_id = apps.application_process_id
     --left join loan_cancellations dflc on apps.loan_id = dflc.loan_id
     --left join charge_off_report cor on apps.loan_id = cor.loan_id

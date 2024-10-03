@@ -32,6 +32,7 @@ SELECT
     coalesce(json_tmp.clientInfo.prospectId.id,
              json_tmp.metadata.context.clientId) AS client_id,
     json_tmp.loan.guaranteePolicy.totalRate.value AS guarantee_rate,
+    CAST(json_tmp.loan.totalGuarantee.value AS DOUBLE) AS guarantee_amount,
     json_tmp.loan.effectiveAnnualRate AS effective_annual_rate,
     json_tmp.loan.isLowBalanceV2.value AS lbl,
     json_tmp.loan.loanId.id AS loan_id,
