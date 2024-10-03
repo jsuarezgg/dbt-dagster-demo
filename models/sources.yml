@@ -1608,13 +1608,11 @@ sources:
       - name: ae_snapshot_behaviour_test
   - name: gold
     tables:
-      - name: risk_master_table_co
       - name: risk_master_table_br
       - name: dm_application_process_funnel_br
       - name: dm_application_process_funnel_co
       - name: dm_amplitude
       - name: dm_loan_status_co
-      - name: fraud_master_table_co
       - name: dm_addi_okr_metrics
       - name: dm_support_today_master_calendar
       - name: expedition_city_homologation_co
@@ -1624,10 +1622,8 @@ sources:
       - name: fmt_clean_address_apps_co
       - name: dm_daily_loan_status_co
       - name: dm_daily_loan_status_br
-      - name: dm_daily_customer_segmentation_co
       - name: dm_originations
       - name: bl_application_product_co
-      - name: bl_application_product_br
       - name: agg_addi_management_manual_metrics_inputs
       - name: agg_addi_management_manual_metrics_inputs_txn
       - name: bl_originations_payment_date_co
@@ -1652,13 +1648,7 @@ sources:
       - name: app_pay_button_tapped
   - name: silver
     tables:
-      - name: f_amplitude_addi_funnel_project
-      - name: f_originations_bnpl_br
-      - name: f_originations_bnpn_br
-      - name: f_applications_br
-      - name: f_origination_events_co_logs
       - name: f_origination_events_br_logs
-      - name: f_originations_bnpl_co
       - name: f_applications_co
       - name: f_marketplace_transaction_attributable_co
       - name: f_marketplace_transaction_attributable_br

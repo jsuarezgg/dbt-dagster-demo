@@ -89,7 +89,7 @@ SELECT
     to_timestamp(event_time) AS client_event_time,
     event_properties:componentName AS component_name, 
     event_properties:screenName AS screen_name
-FROM {{ source('silver', 'f_amplitude_addi_funnel_project') }} a
+FROM {{ ref('f_amplitude_addi_funnel_project') }} a
 WHERE event_type IN ('HOME_STORE_TAPPED','SHOP_STORE_TAPPED','SELECT_STORE','SELECT_DEAL') AND user_id IS NOT NULL AND ally_name IS NOT NULL AND to_date(event_time) >= '2022-06-03'
 )
 ,
@@ -108,7 +108,7 @@ originations_br as (
         client_id,
         application_id,
         loan_id
-    FROM {{ source('silver', 'f_originations_bnpl_br') }}
+    FROM {{ ref('f_originations_bnpl_br') }}
     )
     UNION ALL
     (
@@ -118,7 +118,7 @@ originations_br as (
         client_id,
         application_id,
         null as loan_id
-    FROM {{ source('silver', 'f_originations_bnpn_br') }}
+    FROM {{ ref('f_originations_bnpn_br') }}
     )
 ),
 
@@ -135,7 +135,7 @@ interest_originations_br as (
         originations_br.loan_id,
         originations_br.origination_datetime,
         originations_br.origination_date_local
-    FROM {{ source('silver', 'f_applications_br') }} as application_br
+    FROM {{ ref('f_applications_br') }} as application_br
     JOIN originations_br ON originations_br.application_id = application_br.application_id
     WHERE lower(client_type) = 'client' -- ONLY FOR clients that ARE now considered clients, that IS AFTER a FIRST successful BNPL TRANSACTION WITH addi
         AND lower(channel) LIKE '%e_commerce%' -- ONLY Ecommerce
@@ -145,7 +145,7 @@ support_for_originations_co(
     SELECT 
         application_id,
         MAX(ocurred_on_date) AS approved_ocurred_on
-    FROM {{ source('silver', 'f_origination_events_co_logs') }} 
+    FROM {{ source('silver_live','f_origination_events_co_logs') }} 
     WHERE event_type  = 'APPROVAL' -- AND channel != 'PRE_APPROVAL'
     GROUP BY 1
 )
@@ -157,7 +157,7 @@ originations_co as (
         o_bnpl_co.client_id,
         o_bnpl_co.application_id,
         o_bnpl_co.loan_id
-    FROM {{ source('silver', 'f_originations_bnpl_co') }} as o_bnpl_co
+    FROM {{ source('silver_live','f_originations_bnpl_co') }} as o_bnpl_co
     LEFT JOIN support_for_originations_co AS sup_co ON o_bnpl_co.application_id = sup_co.application_id
 ),
 
@@ -174,7 +174,7 @@ interest_originations_co as (
         originations_co.loan_id,
         originations_co.origination_datetime,
         originations_co.origination_date_local
-    FROM {{ source('silver', 'f_applications_co') }} AS io_co
+    FROM {{ source('silver_live','f_applications_co') }} AS io_co
     JOIN originations_co ON originations_co.application_id = io_co.application_id
     WHERE lower(io_co.client_type) = 'client' -- ONLY FOR clients that ARE now considered clients, that IS AFTER a FIRST successful BNPL TRANSACTION WITH addi
         AND lower(io_co.channel) LIKE '%e_commerce%' -- ONLY Ecommerce
