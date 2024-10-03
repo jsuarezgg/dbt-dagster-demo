@@ -52,7 +52,7 @@ DISTINCT (ls.client_id)
 ,SUM(ls.min_payment) AS min_payment
 ,MIN(ls.first_payment_date)::date AS first_first_payment_date
 FROM {{ ref('dm_loan_status_co') }} ls
-LEFT JOIN {{ source('gold','risk_master_table_co') }} rmt ON rmt.loan_id=ls.loan_id
+LEFT JOIN {{ ref('risk_master_table_co') }} rmt ON rmt.loan_id=ls.loan_id
 LEFT JOIN {{ source('silver_live', 'f_fincore_loans_co') }} fc ON ls.loan_id=fc.loan_id
 WHERE ls.cancellation_reason IS NULL
 AND (ls.is_fully_paid IS FALSE or (ls.is_fully_paid is TRUE and fc.delinquency_balance>5000))
@@ -276,8 +276,8 @@ SELECT fmt.*
     ELSE 0
     END
     AS idv_bypassed_or
-FROM {{ source('gold','fraud_master_table_co') }} fmt
-LEFT JOIN {{ source('gold','risk_master_table_co') }} mt
+FROM {{ ref('fraud_master_table_co') }} fmt
+LEFT JOIN {{ ref('risk_master_table_co') }} mt
     ON fmt.application_id = mt.application_id
 LEFT JOIN {{ source('silver_live', 'f_fincore_loans_co') }} fl
 		ON fmt.loan_id=fl.loan_id

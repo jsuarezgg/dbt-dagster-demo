@@ -18,7 +18,8 @@
                 "application_id",
                 "client_id",
                 "ocurred_on",
-                "loan_acceptance_detail_json"
+                "loan_acceptance_detail_json",
+                "otp_code"
             ],
             "custom_attributes": {}
         },
@@ -29,7 +30,8 @@
                 "application_id",
                 "client_id",
                 "ocurred_on",
-                "loan_acceptance_detail_json"
+                "loan_acceptance_detail_json",
+                "otp_code"
             ],
             "custom_attributes": {}
         },
@@ -40,7 +42,8 @@
                 "application_id",
                 "client_id",
                 "ocurred_on",
-                "loan_acceptance_detail_json"
+                "loan_acceptance_detail_json",
+                "otp_code"
             ],
             "custom_attributes": {}
         }
@@ -51,7 +54,8 @@
             "client_id",
             "event_id",
             "loan_acceptance_detail_json",
-            "ocurred_on"
+            "ocurred_on",
+            "otp_code"
         ],
         "custom": []
     }

@@ -1,0 +1,63 @@
+{{
+    config(
+        materialized='incremental',
+        incremental_strategy='append',
+        unique_key='snapshot_timestamp',
+        post_hook=[
+            'ANALYZE TABLE {{ this }} COMPUTE STATISTICS',
+        ]
+    )
+}}
+
+
+SELECT
+    date_add(NOW()::DATE, -1) AS snapshot_timestamp,
+    a.loan_id,
+    a.marketplace_suborder_id,
+    a.product,
+    a.credit_score,
+    a.credit_score_product,
+    a.tdsr,
+    a.merchant_discount_fee,
+    a.estimated_income,
+    a.credit_check_income_provider,
+    a.region,
+    a.addi_pd,
+    a.foreberance,
+    a.returning_client,
+    a.max_dpd,
+    a.product_type,
+    a.client_id,
+    a.current_apr,
+    a.origination_apr,
+    a.low_balance_loan,
+    a.current_usury_rate,
+    a.expected_maturity_date,
+    a.current_installment_amount,
+    a.ally_name,
+    a.ally_vertical,
+    a.is_marketplace,
+    a.is_fully_paid,
+    a.is_cancelled,
+    a.client_max_dpd,
+    a.obligor_age_range,
+    a.approved_amount,
+    a.cancellation_reason,
+    a.first_payment_date,
+    a.mob,
+    a.origination_date,
+    a.term,
+    a.unpaid_principal,
+    a.days_past_due,
+    a.expected_final_losses_percentage,
+    a.expected_net_profit_percentage,
+    a.loan_lead_gen_fee_rate,
+    a.is_addi_employee,
+    a.id_number,
+    a.sale_date,
+    a.is_fga_claimed,
+    a.guarantee_provider,
+    a.ltl_flag,
+    NOW() AS ingested_at,
+    to_timestamp('{{ var("execution_date") }}') AS updated_at
+FROM gold.agg_goldman_loan_tape_co a;

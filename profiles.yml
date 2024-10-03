@@ -1,4 +1,5 @@
 addi:
+  target: default
   outputs:
     default:
       type: databricks

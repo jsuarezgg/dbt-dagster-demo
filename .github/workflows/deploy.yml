@@ -10,13 +10,13 @@ concurrency:
   group: ${{ github.ref }}/deploy
   cancel-in-progress: true
 env:
-  DAGSTER_CLOUD_URL: "http://jmsg-test.dagster.cloud"
-  DAGSTER_CLOUD_ORGANIZATION: "jmsg-test"
+  DAGSTER_CLOUD_URL: "http://abbdbd.dagster.cloud"
+  DAGSTER_CLOUD_ORGANIZATION: "abbdbd"
   DAGSTER_CLOUD_API_TOKEN: ${{ secrets.DAGSTER_CLOUD_API_TOKEN }}
   ENABLE_FAST_DEPLOYS: 'true'
   PYTHON_VERSION: '3.8'
   DAGSTER_CLOUD_FILE: 'dagster_cloud.yaml'
-  DAGSTER_PROJECT_NAME: "dbt_dagster_demo"
+  DAGSTER_PROJECT_NAME: "dbt_dagster_demo_2"
 
 jobs:
   dagster_cloud_default_deploy:
@@ -64,10 +64,10 @@ jobs:
         if: steps.prerun.outputs.result == 'pex-deploy'
         # --upgrade-strategy eager picks up newer packages that are required for things to work
         run: |
-          pip install pip --upgrade
+          python -m pip install pip --upgrade
           cd project-repo/${{ env.DAGSTER_PROJECT_NAME }}
           pip install . --upgrade --upgrade-strategy eager
-          dagster-dbt project prepare-for-deployment --file ${{ env.DAGSTER_PROJECT_NAME }}/project.py
+          dagster-dbt project prepare-and-package --file ${{ env.DAGSTER_PROJECT_NAME }}/project.py
           # The cli command below can be used to manage syncing the prod manifest to branches if state_path is set on the DbtProject
           # dagster-cloud ci dagster-dbt project manage-state --file ${{ env.DAGSTER_PROJECT_NAME }}/project.py
         shell: bash

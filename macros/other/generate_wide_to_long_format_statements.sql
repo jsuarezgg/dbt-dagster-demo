@@ -6,7 +6,7 @@
         STACK({{ data_source_dict['columns'] | length }},
                 {%- for column_dict in data_source_dict['columns'] %}
                 '{{ column_dict.alias }}',
-                {{ column_dict.expr }}::STRING{% if not loop.last %},{% endif %}
+                ({{ column_dict.expr }})::STRING{% if not loop.last %},{% endif %}
                 {% endfor -%}
         ) AS (column_name, column_value)
         FROM
